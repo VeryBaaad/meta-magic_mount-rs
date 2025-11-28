@@ -46,7 +46,7 @@ where
         flags: 2,
         mode: 1,
     };
-    let fd = *DRIVER_FD.get_or_init(grab_fd());
+    let fd = *DRIVER_FD.get_or_init(|| grab_fd());
 
     unsafe {
         #[cfg(target_env = "gnu")]
