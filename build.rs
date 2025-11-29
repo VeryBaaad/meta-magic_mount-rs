@@ -9,6 +9,7 @@ struct Package {
     pub name: String,
     pub version: String,
     pub description: String,
+    pub update: String,
 }
 
 #[derive(Deserialize)]
@@ -88,6 +89,7 @@ fn gen_module_prop(data: &CargoConfig) -> Result<()> {
     writeln!(file, "version=v{}", version.trim())?;
     writeln!(file, "versionCode={version_code}")?;
     writeln!(file, "author={author}")?;
+    writeln!(file, "updateJson={}", package.update)?;
     writeln!(file, "description={}", package.description)?;
     writeln!(file, "metamodule=1")?;
     Ok(())

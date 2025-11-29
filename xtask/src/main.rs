@@ -8,11 +8,93 @@ use std::{
 
 use anyhow::Result;
 use fs_extra::{dir, file};
+use serde::{Deserialize, Serialize};
 use zip::{CompressionMethod, write::FileOptions};
 
 use crate::zip_ext::zip_create_from_directory_with_options;
 
+#[derive(Deserialize)]
+struct Package {
+    pub version: String,
+    pub update: String,
+}
+
+#[derive(Deserialize)]
+struct CargoConfig {
+    pub package: Package,
+}
+
+#[derive(Serialize)]
+struct UpdateJson {
+    verion: String,
+    versionCode: usize,
+    zipUrl: String,
+    changelog: String,
+}
+
 fn main() -> Result<()> {
+    let args: Vec<_> = std::env::args().collect();
+
+    if args.len() == 1 {
+        return Ok(());
+    }
+
+    match args[1].as_str() {
+        "build" | "b" => build()?,
+        "update" | "u" => update()?,
+        _ => {}
+    }
+
+    Ok(())
+}
+
+fn cal_version_code(version: &str) -> Result<usize> {
+    let manjor = version
+        .split('.')
+        .next()
+        .ok_or_else(|| anyhow::anyhow!("Invalid version format"))?;
+    let manjor: usize = manjor.parse()?;
+    let minor = version
+        .split('.')
+        .nth(1)
+        .ok_or_else(|| anyhow::anyhow!("Invalid version format"))?;
+    let minor: usize = minor.parse()?;
+    let patch = version
+        .split('.')
+        .nth(2)
+        .ok_or_else(|| anyhow::anyhow!("Invalid version format"))?;
+    let patch: usize = patch.parse()?;
+
+    // 版本号计算规则：主版本 * 100000 + 次版本 * 1000 + 修订版本
+    Ok(manjor * 100000 + minor * 1000 + patch)
+}
+
+fn update() -> Result<()> {
+    let toml = fs::read_to_string("Cargo.toml")?;
+    let data: CargoConfig = toml::from_str(&toml)?;
+    let output = Path::new("output");
+
+    build()?;
+
+    let json = UpdateJson {
+        versionCode: cal_version_code(&data.package.version)?,
+        verion: data.package.version.clone(),
+        zipUrl: format!(
+            "https://github.com/Tools-cx-app/meta-magic_mount/releases/download/v{}/magic_mount_rs.zip",
+            data.package.version.clone()
+        ),
+        changelog: String::from(
+            "https://github.com/Tools-cx-app/meta-magic_mount/raw/master/update/changelog.md",
+        ),
+    };
+
+    let raw_json = serde_json::to_string_pretty(&json)?;
+
+    fs::write("update/update.json", raw_json)?;
+
+    Ok(())
+}
+fn build() -> Result<()> {
     let temp_dir = temp_dir();
 
     let _ = fs::remove_dir_all(&temp_dir);
