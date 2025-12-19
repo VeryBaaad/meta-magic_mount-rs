@@ -3,13 +3,31 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use anyhow::{Context, Result, bail};
+use anyhow::{Context, Result, anyhow, bail};
 #[cfg(any(target_os = "linux", target_os = "android"))]
 use extattr::{Flags as XattrFlags, lsetxattr};
+use regex_lite::Regex;
 
 #[cfg(any(target_os = "linux", target_os = "android"))]
 use crate::defs::SELINUX_XATTR;
 use crate::defs::TMPFS_CANDIDATES;
+
+/// Validate module_id format and security
+/// Module ID must match: ^[a-zA-Z][a-zA-Z0-9._-]+$
+/// - Must start with a letter (a-zA-Z)
+/// - Followed by one or more alphanumeric, dot, underscore, or hyphen characters
+/// - Minimum length: 2 characters
+pub fn validate_module_id(module_id: &str) -> Result<()> {
+    let re = Regex::new(r"^[a-zA-Z][a-zA-Z0-9._-]+$")?;
+    if re.is_match(module_id) {
+        Ok(())
+    } else {
+        Err(anyhow!(
+            "Invalid module ID: '{}'. Must match /^[a-zA-Z][a-zA-Z0-9._-]+$/",
+            module_id
+        ))
+    }
+}
 
 pub fn lsetfilecon<P: AsRef<Path>>(path: P, con: &str) -> Result<()> {
     #[cfg(any(target_os = "linux", target_os = "android"))]

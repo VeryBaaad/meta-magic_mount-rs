@@ -2,7 +2,10 @@ use std::{fs, path::Path};
 
 use serde::Serialize;
 
-use crate::defs::{DISABLE_FILE_NAME, REMOVE_FILE_NAME, SKIP_MOUNT_FILE_NAME};
+use crate::{
+    defs::{DISABLE_FILE_NAME, REMOVE_FILE_NAME, SKIP_MOUNT_FILE_NAME},
+    utils::validate_module_id,
+};
 
 const PERFIX: &[&str] = &["system", "odm"];
 
@@ -74,15 +77,17 @@ where
             let description =
                 read_prop(&prop, "description").unwrap_or_else(|| "unknown".to_string());
 
-            modules.push(ModuleInfo {
-                id,
-                name,
-                version,
-                author,
-                description,
-                disabled,
-                skip,
-            });
+            if let Ok(_) = validate_module_id(&id) {
+                modules.push(ModuleInfo {
+                    id,
+                    name,
+                    version,
+                    author,
+                    description,
+                    disabled,
+                    skip,
+                });
+            }
         }
     }
     modules.sort_by(|a, b| a.id.cmp(&b.id));

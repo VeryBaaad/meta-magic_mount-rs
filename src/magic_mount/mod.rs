@@ -21,7 +21,7 @@ use rustix::{
 use crate::{
     defs::{DISABLE_FILE_NAME, REMOVE_FILE_NAME, SKIP_MOUNT_FILE_NAME},
     magic_mount::node::{Node, NodeFileType},
-    utils::{ensure_dir_exists, lgetfilecon, lsetfilecon},
+    utils::{ensure_dir_exists, lgetfilecon, lsetfilecon, validate_module_id},
 };
 
 #[cfg(any(target_os = "linux", target_os = "android"))]
@@ -36,6 +36,18 @@ fn collect_module_files(module_dir: &Path, extra_partitions: &[String]) -> Resul
     for entry in module_root.read_dir()?.flatten() {
         if !entry.file_type()?.is_dir() {
             continue;
+        }
+
+        {
+            let prop = entry.path().join("module.prop");
+            let string = fs::read_to_string(prop)?;
+            for line in string.lines() {
+                if line.starts_with("name")
+                    && let Some((_, value)) = line.split_once('=')
+                {
+                    validate_module_id(&value)?;
+                }
+            }
         }
 
         if entry.path().join(DISABLE_FILE_NAME).exists()
