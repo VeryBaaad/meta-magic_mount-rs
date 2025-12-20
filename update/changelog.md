@@ -1,54 +1,43 @@
-## 1.2.2 - 2025-12-14
+## 1.3.0 - 2025-12-20
 
-**[View changes](https://github.com/Tools-cx-app/meta-magic_mount/compare/4fc7bfeae7b48e86227d5ca564999411db79d64d...b1fb11117ca76338609fc1b920f2a86bbd53ad73)**(4fc7bfe...b1fb111)
+**[View changes](https://github.com/Tools-cx-app/meta-magic_mount/compare/b1fb11117ca76338609fc1b920f2a86bbd53ad73...983f6e018289e0f8f3308f01be226266477d85a3)**(b1fb111...983f6e0)
 
 ### <!-- 0 --> Features
 
-- Add automatic backup([cb534ae](https://github.com/Tools-cx-app/meta-magic_mount/commit/cb534ae5e4d0e56320212a72ffdf5cf0095d0f54))
-- Add check ksu in binary([72c019f](https://github.com/Tools-cx-app/meta-magic_mount/commit/72c019f8066a9fffc7d11e4f47b5c7b4ce4f2b0d))
-- Add hymofs hide support([d7ffbe8](https://github.com/Tools-cx-app/meta-magic_mount/commit/d7ffbe8abbf2d0d0712a9c03294ccd8f8bff2ddc))
+- Refactor ConfigTab to MD3 style([7a46565](https://github.com/Tools-cx-app/meta-magic_mount/commit/7a4656534f23f438f9db7caee6b53b9c58303088))
+- Readded dir tree([6f12528](https://github.com/Tools-cx-app/meta-magic_mount/commit/6f12528f0e78fa2dfa89ff8dc21d3be50edd39c0))
+- Add module id check([a94f1b0](https://github.com/Tools-cx-app/meta-magic_mount/commit/a94f1b0bea745f97c1a445016b615d2a056a8802))
 
 ### <!-- 1 --> Bug Fixes
 
-- Fix read prop failed no skip([28385c3](https://github.com/Tools-cx-app/meta-magic_mount/commit/28385c36007a5de66f7b61ad7ab8950f2461f493))
-- Fix umount problems([eaf4c24](https://github.com/Tools-cx-app/meta-magic_mount/commit/eaf4c24db1204531e28d19753170cf3ab977b224))
-- Fix cal short commit([768b9b2](https://github.com/Tools-cx-app/meta-magic_mount/commit/768b9b23e4bc353202832ade42357d58bb0a79f2))
-- Fix sysInfoTitle won't in i18n json([d665bc8](https://github.com/Tools-cx-app/meta-magic_mount/commit/d665bc813699fa1461d413c325fd957922ca218b))
-- Fix scan all modules([e1fb032](https://github.com/Tools-cx-app/meta-magic_mount/commit/e1fb032380967496c3e565d6d0d60bb4fec879f3))
+- Fix zn detecter logic([ad886a2](https://github.com/Tools-cx-app/meta-magic_mount/commit/ad886a28c7ab02a8e4145d2969942f16f44d83f8))
+- Fix debug log error([aa3eeab](https://github.com/Tools-cx-app/meta-magic_mount/commit/aa3eeab8d9ece6b83ae58a5a5814c6cfd3419039))
+- Fix check ZN error([378635a](https://github.com/Tools-cx-app/meta-magic_mount/commit/378635ad31271f2ac6d4d59d954529ab60260b28))
+- Fix parse id error([e13ea12](https://github.com/Tools-cx-app/meta-magic_mount/commit/e13ea124a0279ec525473a47aebf21b260f2180a))
+- The fix might not include a module.prop([1326639](https://github.com/Tools-cx-app/meta-magic_mount/commit/13266390b52538c451223bb2e9e3747beb5e2a91))
+- Fix scanner get name is too long([e0839cc](https://github.com/Tools-cx-app/meta-magic_mount/commit/e0839cc4ea42f0d9c21c1cbda3d0adff48478eb7))
 
 ### <!-- 11 --> Other
 
-- Delete emojis && add opt([c8867b8](https://github.com/Tools-cx-app/meta-magic_mount/commit/c8867b82d261ce04b35b1fa67a06880864525fd3))
-- Reduce unsafe code blocks([d5c7086](https://github.com/Tools-cx-app/meta-magic_mount/commit/d5c7086d3e9ebd123bd9a77c2b04c83ca3ebc411))
+- Fix([d66c704](https://github.com/Tools-cx-app/meta-magic_mount/commit/d66c704270630c2cff36f831961f7ba43c475cb8))
 
 ### <!-- 2 --> Optimization
 
-- Optimize the cache mechanism in workflows([e29afac](https://github.com/Tools-cx-app/meta-magic_mount/commit/e29afac1b5932e0545afa9d262ec341b3813e6d2))
-- Optimize zn judgment([bc2f6c9](https://github.com/Tools-cx-app/meta-magic_mount/commit/bc2f6c92f3a760bad3c814f8037a6e286563892f))
-- Optimize scanner logic([0779512](https://github.com/Tools-cx-app/meta-magic_mount/commit/0779512d5b9f74c6c1666ca1b2fcfbdef45ecd0b))
+- Optimize try_umount logic([b171b1e](https://github.com/Tools-cx-app/meta-magic_mount/commit/b171b1eb9a5ae00d4f904f2b3eb7d4ab7b61baa3))
 
-### <!-- 5 --> Performance
+### <!-- 3 --> Refactor
 
-- Add cache hymofs fd([8b3b6b2](https://github.com/Tools-cx-app/meta-magic_mount/commit/8b3b6b2917bd66878d924e61778e78d8879f0b8a))
+- Refactor ioctl in hymofs([81fd38c](https://github.com/Tools-cx-app/meta-magic_mount/commit/81fd38c471525235e9633517b2cded2b41b4a691))
 
 ### <!-- 8 --> Miscellaneous Tasks
 
-- Remove tempdir([1b0db7e](https://github.com/Tools-cx-app/meta-magic_mount/commit/1b0db7e97fd837e4d43475c067ac18f017f66da0))
-- Add paths in workflows([51f62df](https://github.com/Tools-cx-app/meta-magic_mount/commit/51f62df22833a54247dcec24510c4129977535b2))
-- Add groups pr in dependabot([d8763d6](https://github.com/Tools-cx-app/meta-magic_mount/commit/d8763d65a3a44cb670edde65f774eae1322cba7b))
-- Fix webui no in paths([50c65ff](https://github.com/Tools-cx-app/meta-magic_mount/commit/50c65ffa2d9c791ba42098ea68af6a482936c7ed))
-- Fix dependabot's xtask path([310da35](https://github.com/Tools-cx-app/meta-magic_mount/commit/310da357fbf7c66e29aad7ebcc3f6549581efd0d))
-- Remove load_config([39827df](https://github.com/Tools-cx-app/meta-magic_mount/commit/39827dfaf8c85bf0b2018e94ac857594a1c941fd))
-- Change toolchain to stable && add more paths in ci([4757524](https://github.com/Tools-cx-app/meta-magic_mount/commit/47575245a714e0dcbe2cbf8d034a8b6bd091cf38))
-- Remove more !cfg([b42a544](https://github.com/Tools-cx-app/meta-magic_mount/commit/b42a544bcdc3e55f7cf8652ad48646282fa854ec))
-- Sync kernelsu add try umount ioctl([4c51035](https://github.com/Tools-cx-app/meta-magic_mount/commit/4c51035bece592fd1c9a90267303122726785f1a))
-- Make cargo clippy happy([dd4cefc](https://github.com/Tools-cx-app/meta-magic_mount/commit/dd4cefc73b7f1c4f6a30197d0843456e6c723ca8))
-- Cheanup unused code([562719f](https://github.com/Tools-cx-app/meta-magic_mount/commit/562719f98d1cac7d14b66229092bcc580d7f9fac))
-- Add lints check([5aa5cd9](https://github.com/Tools-cx-app/meta-magic_mount/commit/5aa5cd948d91324247e832cfb96bc158ddb2cb88))
-- Make cargo clippy happy([2a0149a](https://github.com/Tools-cx-app/meta-magic_mount/commit/2a0149ac2522d47ecec7b91b42289e63d1fbe72d))
-- Split functions from try_umount([4e109b9](https://github.com/Tools-cx-app/meta-magic_mount/commit/4e109b98c6f5b83a20651102aabfb78eaffe38b4))
-- Move try_umount to src/try_umount([b19108c](https://github.com/Tools-cx-app/meta-magic_mount/commit/b19108c7957fe39e98d6597eeea246cd325ddb98))
-- Delete double confirmation([1e07c6f](https://github.com/Tools-cx-app/meta-magic_mount/commit/1e07c6f40dcd19d13671e52444a5d25e533e9733))
-- Passed lints workflows([6235df8](https://github.com/Tools-cx-app/meta-magic_mount/commit/6235df87ded47906024a3cc059d9a2f425f2b612))
+- Passed lints([b10bf52](https://github.com/Tools-cx-app/meta-magic_mount/commit/b10bf52b1dd581bc25b3498e8fb3fe324785a5bb))
+- Remove push in lints check([a17685c](https://github.com/Tools-cx-app/meta-magic_mount/commit/a17685ccf3af9a617ae02ceca211d2d74baa86a8))
+- Cleanup unused code([1c0b602](https://github.com/Tools-cx-app/meta-magic_mount/commit/1c0b602d21bc94d77a270916bab9db1bfd1f8b89))
+- Fmt([42c65dd](https://github.com/Tools-cx-app/meta-magic_mount/commit/42c65ddd022f5afe31e9d27e8a382722713a1c48))
+- Remove another in bot message([dbacb46](https://github.com/Tools-cx-app/meta-magic_mount/commit/dbacb46a82a8e5a4c583c6525c2f014653c2fe82))
+- Sync webui/package-lock.json([100b97e](https://github.com/Tools-cx-app/meta-magic_mount/commit/100b97e274279f53d76445531854bdbbb706b8fc))
+- Cleanup unused public([d70c93c](https://github.com/Tools-cx-app/meta-magic_mount/commit/d70c93c15f5ed598c490273aacace32716cdb08b))
+- Fmt && make cargo clippy happy([6562850](https://github.com/Tools-cx-app/meta-magic_mount/commit/656285039126fb893262b9b26882c793efffd11a))
 
 
