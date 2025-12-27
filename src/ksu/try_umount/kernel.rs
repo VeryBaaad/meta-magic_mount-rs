@@ -1,16 +1,9 @@
-use std::{ffi::CString, io, os::fd::RawFd, path::Path, sync::OnceLock};
+use std::{ffi::CString, io, path::Path};
 
 use anyhow::Result;
 use rustix::path::Arg;
 
-const K: u32 = b'K' as u32;
-const KSU_INSTALL_MAGIC1: u32 = 0xDEAD_BEEF;
-#[cfg(target_env = "gnu")]
-const KSU_IOCTL_ADD_TRY_UMOUNT: u64 = libc::_IOW::<()>(K, 18);
-#[cfg(not(target_env = "gnu"))]
-const KSU_IOCTL_ADD_TRY_UMOUNT: i32 = libc::_IOW::<()>(K, 18);
-const KSU_INSTALL_MAGIC2: u32 = 0xCAFE_BABE;
-static DRIVER_FD: OnceLock<RawFd> = OnceLock::new();
+use crate::ksu::{get_fd, magic::KSU_IOCTL_ADD_TRY_UMOUNT};
 
 #[repr(C)]
 struct KsuAddTryUmount {
@@ -30,19 +23,7 @@ where
         mode: 1,
     };
 
-    let fd = *DRIVER_FD.get_or_init(|| {
-        let mut fd = -1;
-        unsafe {
-            libc::syscall(
-                libc::SYS_reboot,
-                KSU_INSTALL_MAGIC1,
-                KSU_INSTALL_MAGIC2,
-                0,
-                &mut fd,
-            );
-        };
-        fd
-    });
+    let fd = get_fd();
 
     let ret = unsafe {
         #[cfg(target_env = "gnu")]

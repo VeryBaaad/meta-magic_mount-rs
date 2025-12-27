@@ -3,10 +3,10 @@
 
 mod config;
 mod defs;
-mod magic_mount;
-mod scanner;
 #[cfg(any(target_os = "linux", target_os = "android"))]
 mod ksu;
+mod magic_mount;
+mod scanner;
 mod utils;
 
 use std::io::Write;
@@ -76,8 +76,9 @@ fn main() -> Result<()> {
 
     init_logger(config.verbose);
 
-    if std::env::var("KSU").is_err() {
+    if !ksu::check_ksu() {
         log::error!("only support KernelSU!!");
+        panic!();
     }
 
     log::info!("Magic Mount Starting");

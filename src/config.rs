@@ -54,8 +54,7 @@ impl fmt::Display for Config {
 
 impl Config {
     pub fn load() -> Result<Self> {
-        let content =
-            fs::read_to_string(CONFIG_FILE).context("failed to read config file")?;
+        let content = fs::read_to_string(CONFIG_FILE).context("failed to read config file")?;
 
         let config: Self = toml::from_str(&content).context("failed to parse config file")?;
 
