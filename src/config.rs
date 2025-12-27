@@ -3,7 +3,7 @@ use std::{fmt, fs, path::PathBuf};
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 
-use crate::defs::CONFIG_FILE_DEFAULT;
+use crate::defs::CONFIG_FILE;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Config {
@@ -53,9 +53,9 @@ impl fmt::Display for Config {
 }
 
 impl Config {
-    pub fn load_default() -> Result<Self> {
+    pub fn load() -> Result<Self> {
         let content =
-            fs::read_to_string(CONFIG_FILE_DEFAULT).context("failed to read config file")?;
+            fs::read_to_string(CONFIG_FILE).context("failed to read config file")?;
 
         let config: Self = toml::from_str(&content).context("failed to parse config file")?;
 
