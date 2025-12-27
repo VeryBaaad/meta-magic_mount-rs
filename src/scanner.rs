@@ -36,7 +36,7 @@ fn read_prop(vaule: &str, key: &str) -> Option<String> {
 /// 1. Do not have a `system` directory.
 /// 2. Are disabled or removed.
 /// 3. Have the `skip_mount` flag.
-pub fn scan_modules<P>(module_dir: P) -> Vec<ModuleInfo>
+pub fn scan_modules<P>(module_dir: P, extra: &[String]) -> Vec<ModuleInfo>
 where
     P: AsRef<Path>,
 {
@@ -54,7 +54,9 @@ where
                 continue;
             }
 
-            if PERFIX.iter().all(|p| !path.join(p).is_dir()) {
+            if PERFIX.iter().all(|p| !path.join(p).is_dir())
+                || extra.iter().all(|p| !path.join(p).is_dir())
+            {
                 continue;
             }
 
