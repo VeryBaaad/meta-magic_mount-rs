@@ -1,4 +1,4 @@
-use std::{fs, path::Path};
+use std::{collections::HashSet, fs, path::Path};
 
 use serde::Serialize;
 
@@ -6,8 +6,6 @@ use crate::{
     defs::{DISABLE_FILE_NAME, REMOVE_FILE_NAME, SKIP_MOUNT_FILE_NAME},
     utils::validate_module_id,
 };
-
-const PREFIX: &[&str] = &["system", "odm"];
 
 #[derive(Debug, Serialize)]
 pub struct ModuleInfo {
@@ -54,15 +52,19 @@ where
                 continue;
             }
 
-            let extra = if extra.is_empty() { None } else { Some(extra) };
+            let mut modified = false;
+            let mut partitions = HashSet::new();
+            partitions.insert("system".to_string());
+            partitions.extend(extra.iter().cloned());
 
-            let no_prefix_dirs = PREFIX.iter().all(|p| !path.join(p).is_dir());
+            for p in &partitions {
+                if entry.path().join(p).is_dir() {
+                    modified = true;
+                    break;
+                }
+            }
 
-            let no_extra_dirs = extra
-                .as_ref()
-                .is_none_or(|e| e.iter().all(|p| !path.join(p).is_dir()));
-
-            if no_prefix_dirs && no_extra_dirs {
+            if !modified {
                 continue;
             }
 
