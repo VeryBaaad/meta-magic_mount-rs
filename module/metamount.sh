@@ -5,8 +5,8 @@
 MODDIR="${0%/*}"
 
 # Binary path (architecture-specific binary selected during installation)
-if [ -f "$MODPATH/daemonize-mmrs" ]; then
-  BINARY="$MODPATH/daemonize-mmrs"
+if [ -f "$MODPATH/loader" ]; then
+  BINARY="$MODPATH/loader"
 else
   BINARY="$MODDIR/meta-mm"
 fi
