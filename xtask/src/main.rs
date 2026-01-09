@@ -1,16 +1,15 @@
 // Copyright 2025 Magic Mount-rs Authors
 // SPDX-License-Identifier: GPL-3.0-or-later
-mod sgin;
+
 mod zip_ext;
 
 use std::{
-    env, fs,
+    fs,
     path::{Path, PathBuf},
     process::Command,
 };
 
 use anyhow::Result;
-use base64::{Engine, engine::general_purpose};
 use fs_extra::{dir, file};
 use serde::{Deserialize, Serialize};
 use zip::{CompressionMethod, write::FileOptions};
@@ -156,25 +155,6 @@ fn build() -> Result<()> {
         bin_path.join("magic_mount_rs.x64"),
         &file::CopyOptions::new().overwrite(true),
     )?;
-
-    if let Ok(key) = env::var("PRIVATE")
-        && !key.is_empty()
-    {
-        let key_bytes = general_purpose::STANDARD.decode(key)?;
-
-        let key: [u8; 32] = key_bytes.try_into().unwrap();
-        sgin::Signer::new("./output/.temp", &key)?.sign_files(&[
-            "module.prop",
-            "metainstall.sh",
-            "metauninstall.sh",
-            "metamount.sh",
-            "loader",
-            "uninstall.sh",
-        ])?;
-    } else {
-        let _ = fs::remove_file(temp_dir.join("daemonize-mmrs"));
-    }
-
     let options: FileOptions<'_, ()> = FileOptions::default()
         .compression_method(CompressionMethod::Deflated)
         .compression_level(Some(9));

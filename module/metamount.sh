@@ -5,11 +5,7 @@
 MODDIR="${0%/*}"
 
 # Binary path (architecture-specific binary selected during installation)
-if [ -f "$MODPATH/loader" ]; then
-  BINARY="$MODPATH/loader"
-else
-  BINARY="$MODDIR/meta-mm"
-fi
+BINARY="$MODDIR/meta-mm"
 
 if [ ! -f "$BINARY" ]; then
   log "ERROR: Binary not found: $BINARY"
