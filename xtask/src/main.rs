@@ -18,12 +18,12 @@ use crate::zip_ext::zip_create_from_directory_with_options;
 
 #[derive(Deserialize)]
 struct Package {
-    pub version: String,
+    version: String,
 }
 
 #[derive(Deserialize)]
 struct CargoConfig {
-    pub package: Package,
+    package: Package,
 }
 
 #[derive(Serialize)]
@@ -95,8 +95,10 @@ fn update() -> Result<()> {
         // Fixed typo here as well
         version: data.package.version.clone(),
         zipurl: format!(
-            "https://github.com/Tools-cx-app/meta-magic_mount/releases/download/v{}/magic_mount_rs.zip",
-            data.package.version.clone()
+            "https://github.com/Tools-cx-app/meta-magic_mount/releases/download/v{}/magic_mount_rs-{}-{}.zip",
+            data.package.version.clone(),
+            &data.package.version,
+            &cal_git_code()?
         ),
         changelog: String::from(
             "https://github.com/Tools-cx-app/meta-magic_mount/raw/master/update/changelog.md",
