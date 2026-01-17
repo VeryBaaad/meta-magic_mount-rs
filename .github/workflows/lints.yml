@@ -7,6 +7,7 @@ on:
       - 'Cargo.*'
       - 'webui/**'
       - 'build.rs'
+      - 'module/**'
   pull_request:
     branches: ["master"]
     paths:
@@ -14,6 +15,7 @@ on:
       - 'src/**'
       - 'Cargo.*'
       - 'build.rs'
+      - 'module/**'
 env:
   CARGO_TERM_COLOR: always
 jobs:
@@ -39,7 +41,7 @@ jobs:
     with:
       skip-test: true
       working-directory: webui
- shellcheck:
+  shellcheck:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
