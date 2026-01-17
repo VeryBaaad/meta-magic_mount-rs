@@ -145,34 +145,39 @@ export default function ModulesTab() {
                     </div>
 
                     <Show when={expandedId() === mod.id}>
-                       <div class="detail-row">
-                         <span class="detail-label">{store.L.modules.authorLabel}</span>
-                         <span class="detail-value">
-                           {mod.author || store.L.modules.unknownLabel}
-                         </span>
-                       </div>
-                       <div class="detail-row description">
-                         <span class="detail-label">{store.L.modules.descriptionLabel}</span>
-                         <p class="detail-value">
-                           {mod.description || store.L.modules.noDescriptionLabel}
-                         </p>
-                       </div>
-                        <Show when={!mod.is_mounted}>
-                          <div class="status-alert">
-                            <md-icon class="alert-icon">
-                              <svg viewBox="0 0 24 24">
-                                <path d={ICONS.info} />
-                              </svg>
-                            </md-icon>
-                            <span>
-                              {mod.disabledByFlag
-                                ? "Disabled via Manager or 'disable' file."
-                                : mod.skipMount
-                                  ? "Skipped via 'skip_mount' flag."
-                                  : "Not mounted."}
-                            </span>
-                          </div>
-                        </Show>
+                      <div class="detail-row">
+                        <span class="detail-label">
+                          {store.L.modules.authorLabel}
+                        </span>
+                        <span class="detail-value">
+                          {mod.author || store.L.modules.unknownLabel}
+                        </span>
+                      </div>
+                      <div class="detail-row description">
+                        <span class="detail-label">
+                          {store.L.modules.descriptionLabel}
+                        </span>
+                        <p class="detail-value">
+                          {mod.description ||
+                            store.L.modules.noDescriptionLabel}
+                        </p>
+                      </div>
+                      <Show when={!mod.is_mounted}>
+                        <div class="status-alert">
+                          <md-icon class="alert-icon">
+                            <svg viewBox="0 0 24 24">
+                              <path d={ICONS.info} />
+                            </svg>
+                          </md-icon>
+                          <span>
+                            {mod.disabledByFlag
+                              ? "Disabled via Manager or 'disable' file."
+                              : mod.skipMount
+                                ? "Skipped via 'skip_mount' flag."
+                                : "Not mounted."}
+                          </span>
+                        </div>
+                      </Show>
                     </Show>
                   </div>
                 )}
