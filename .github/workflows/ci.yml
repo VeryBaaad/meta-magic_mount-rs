@@ -85,7 +85,7 @@ jobs:
       - name: Upload release version
         uses: actions/upload-artifact@v4
         with:
-          name: meta-mm-${{ github.run_id }}
+          name: meta-mm-${{ github.run_number }}
           compression-level: 9
           path: output/artifact/
       - name: Upload
