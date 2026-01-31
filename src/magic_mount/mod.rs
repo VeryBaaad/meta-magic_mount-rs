@@ -343,7 +343,6 @@ where
         {
             if crate::utils::ksucalls::KSU.load(std::sync::atomic::Ordering::Relaxed) {
                 let mut ksu = LIST.lock().unwrap();
-                ksu.add("/debug_ramdisk");
                 ksu.flags(2);
                 ksu.format_msg(|p| format!("umount {p:?} successful"));
                 ksu.umount()?;
