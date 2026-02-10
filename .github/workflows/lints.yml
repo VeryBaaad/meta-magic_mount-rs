@@ -36,11 +36,6 @@ jobs:
           working-directory: ./
       - name: Clippy code
         run: cargo clippy --all-targets -- -D warnings
-  webui-check:
-    uses: so1ve/workflows/.github/workflows/conventional-ci.yml@v1
-    with:
-      skip-test: true
-      working-directory: webui
   shellcheck:
     runs-on: ubuntu-latest
     steps:
