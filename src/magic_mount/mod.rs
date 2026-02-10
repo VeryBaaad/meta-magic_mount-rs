@@ -342,7 +342,7 @@ where
         {
             if crate::utils::ksucalls::KSU.load(std::sync::atomic::Ordering::Relaxed) {
                 let mut ksu = LIST.lock().unwrap();
-                ksu.flags(2);
+                ksu.flags(ksu::TryUmountFlags::MNT_DETACH);
                 ksu.format_msg(|p| format!("umount {p:?} successful"));
                 ksu.umount()?;
             }
