@@ -13,8 +13,6 @@
 
 为 KernelSU 提供 Systemless 修改功能。
 
-作者由于学业原因，更新会放缓
-
 ---
 
 ## 配置
@@ -25,6 +23,12 @@
 
 ```toml
 mountsource = "KSU"
+umount = false
+partitions = []
+```
+
+```toml
+mountsource = "APatch"
 umount = false
 partitions = []
 ```

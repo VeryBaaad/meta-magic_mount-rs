@@ -29,6 +29,12 @@ umount = false
 partitions = []
 ```
 
+```toml
+mountsource = "APatch"
+umount = false
+partitions = []
+```
+
 | Field | Description |
 | ------------- | -------------- |
 | `mountsource` | Identifier for the Systemless mount source. Default is `"KSU"` to match KernelSU behavior. |
