@@ -72,7 +72,7 @@ cargo xtask b
 
 构建产物将位于：
 
-* output/magic_mount_rs.zip
+* output/magic_mount_rs-`VersionName`-`VersionCode`.zip
 
 ## 致谢
 

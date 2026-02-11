@@ -11,8 +11,6 @@
 
 Provide systemless mount capabilities for KernelSU.
 
-The author will update this project less frequently due to academic commitments.
-
 ---
 
 ## Configuration
@@ -71,7 +69,7 @@ cargo xtask b
 
 Build artifacts will be located at:
 
-* `output/magic_mount_rs.zip`
+* output/magic_mount_rs-`VersionName`-`VersionCode`.zip
 
 ## Acknowledgements
 
