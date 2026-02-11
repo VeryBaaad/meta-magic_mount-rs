@@ -74,6 +74,7 @@ Build artifacts will be located at:
 ## Acknowledgements
 
 * [5ec1cff/KernelSU](https://github.com/5ec1cff/KernelSU/blob/52f1f575ce2bd0ca46ebf644fd00a838af9f344e/userspace/ksud/src/magic_mount.rs): original implementation
+*  [Tools-cx-app/meta-magic_mount-rs](https://github.com/Tools-cx-app/meta-magic_mount-rs/): Fork source
 * [YuzakiKokuban](https://github.com/YuzakiKokuban) Webui modifications
 
 ## License
