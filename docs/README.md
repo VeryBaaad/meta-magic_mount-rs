@@ -1,6 +1,6 @@
 <div align="center">
 
-# Magic Mount Metamodule
+# Magic Mount Metamodule Fork
 
 [![Telegram][telegram-badge]][telegram-url]
 
@@ -9,7 +9,7 @@
 </div>
 
 [telegram-badge]: https://img.shields.io/badge/Group-blue?style=for-the-badge&logo=telegram&label=Telegram
-[telegram-url]: https://t.me/mmrs_ci
+[telegram-url]: https://t.me/EdLSPesodITed
 
 为 KernelSU 提供 Systemless 修改功能。
 
