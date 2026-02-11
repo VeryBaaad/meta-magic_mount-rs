@@ -4,7 +4,7 @@
 
 [![Telegram][telegram-badge]][telegram-url]
 
-[English](README_en.md) [Русский](README_ru.md)
+[English](README_en.md)
 
 </div>
 
