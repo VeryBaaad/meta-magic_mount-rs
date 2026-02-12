@@ -45,8 +45,8 @@ footer = """
 
 # Remote repository configuration
 [remote.github]
-owner = "Tools-cx-app"
-repo = "meta-magic_mount"
+owner = "VeryBaaad"
+repo = "meta-magic_mount-rs"
 
 [git]
 # Parse commits according to the conventional commits specification.
