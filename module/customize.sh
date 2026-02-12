@@ -31,6 +31,10 @@ x86)
   ui_print "  ✓ Selected architecture: x86"
   ARCH_BINARY="magic_mount_rs.x86"
   ;;
+riscv64)
+  ui_print "  ✓ Selected architecture: riscv64"
+  ARCH_BINARY="magic_mount_rs.riscv64"
+  ;;
 *)
   abort "! Unsupported architecture: $ABI"
   ;;
