@@ -19,13 +19,17 @@ arm64-v8a)
   ui_print "  ✓ Selected architecture: ARM64"
   ARCH_BINARY="magic_mount_rs.aarch64"
   ;;
+armeabi-v7a)
+  ui_print "  ✓ Selected architecture: ARMv7"
+  ARCH_BINARY="magic_mount_rs.armv7"
+  ;;
 x86_64)
   ui_print "  ✓ Selected architecture: x86_64"
   ARCH_BINARY="magic_mount_rs.x64"
   ;;
-armeabi-v7a)
-  ui_print "  ✓ Selected architecture: ARMv7"
-  ARCH_BINARY="magic_mount_rs.armv7"
+x86)
+  ui_print "  ✓ Selected architecture: x86"
+  ARCH_BINARY="magic_mount_rs.x86"
   ;;
 *)
   abort "! Unsupported architecture: $ABI"
