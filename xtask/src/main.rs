@@ -114,6 +114,11 @@ fn build() -> Result<()> {
         bin_path.join("magic_mount_rs.x86"),
         &file::CopyOptions::new().overwrite(true),
     )?;
+    file::copy(
+        riscv64_bin_path(),
+        bin_path.join("magic_mount_rs.riscv64"),
+        &file::CopyOptions::new().overwrite(true),
+    )?;
     let options: FileOptions<'_, ()> = FileOptions::default()
         .compression_method(CompressionMethod::Deflated)
         .compression_level(Some(9));
@@ -167,6 +172,13 @@ fn x86_bin_path() -> PathBuf {
     .join("magic_mount_rs")
 }
 
+fn riscv64_bin_path() -> PathBuf {
+    Path::new("target")
+    .join("riscv64-linux-android")
+    .join("release")
+    .join("magic_mount_rs")
+}
+
 fn cargo_ndk() -> Command {
     let mut command = Command::new("cargo");
     command
@@ -183,6 +195,8 @@ fn cargo_ndk() -> Command {
             "x86_64",
             "-t",
             "x86",
+            "-t",
+            "riscv64",
         ])
         .env("RUSTFLAGS", "-C default-linker-libraries");
     command
