@@ -18,8 +18,8 @@ import "@material/web/icon/icon.js";
 import "@material/web/list/list.js";
 import "@material/web/list/list-item.js";
 
-const REPO_OWNER = "Tools-cx-app";
-const REPO_NAME = "meta-magic_mount";
+const REPO_OWNER = "VeryBaaad";
+const REPO_NAME = "meta-magic_mount-rs";
 const CACHE_KEY = "mm_contributors_cache";
 const CACHE_DURATION = 1000 * 60 * 60;
 
