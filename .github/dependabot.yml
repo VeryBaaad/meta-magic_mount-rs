@@ -3,7 +3,7 @@ updates:
   - package-ecosystem: "cargo" # See documentation for possible values
     directory: "/" # Location of package manifests
     schedule:
-      interval: "weekly"
+      interval: "daily"
     groups:
       crates:
         patterns:
@@ -11,7 +11,7 @@ updates:
   - package-ecosystem: "cargo" # See documentation for possible values
     directory: "/xtask" # Location of package manifests
     schedule:
-      interval: "weekly"
+      interval: "daily"
     groups:
       crates:
         patterns:
@@ -22,12 +22,12 @@ updates:
     directory: "/webui"
     # Check the npm registry for updates every day (weekdays)
     schedule:
-      interval: "weekly"
+      interval: "daily"
     groups:
       crates:
         patterns:
           - "*"
-    - package-ecosystem: "github-actions" # See documentation for possible values
-      directory: "/" # Location of package manifests
-      schedule:
-        interval: "weekly"
+  - package-ecosystem: "github-actions" # See documentation for possible values
+     directory: "/" # Location of package manifests
+     schedule:
+       interval: "daily"
