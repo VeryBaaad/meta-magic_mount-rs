@@ -50,7 +50,7 @@ rm -rf "$MODPATH/bin"
 # Ensure the binary is executable
 chmod 755 "$MODPATH/meta-mm" || abort "! Failed to set permissions"
 
-ui_print "- Architecture-specific binary installed successfully"
+ui_print "- mmrs binary installed"
 
 mkdir -p "/data/adb/magic_mount"
 
