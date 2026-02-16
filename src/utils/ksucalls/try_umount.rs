@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 use std::{
+    path::Path,
     sync::{LazyLock, Mutex, OnceLock, atomic::AtomicBool},
 };
 
