@@ -1,42 +1,33 @@
-## 2.2.3 - 2026-02-06
+## 2.2.4 - 2026-02-18
 
-**[View changes](https://github.com/Tools-cx-app/meta-magic_mount/compare/f6f60e6cd3d0e0417cf716cd42f7d7d2a2a20811...51e1e14e42ab211194fd7b4bd35dd9749487dbec)**(f6f60e6...51e1e14)
+**[View changes](https://github.com/Tools-cx-app/meta-magic_mount-rs/compare/2e624c6f99b143b5dca766bb08ce220c88cb1a33...2a0dc3ded09bb6f8d0728d209e33c0a812337b99)**(2e624c6...2a0dc3d)
 
 ### <!-- 0 --> Features
 
-- Only support ksu/ap([ceb2d4a](https://github.com/Tools-cx-app/meta-magic_mount/commit/ceb2d4a33fe0887d54a1b4cd3163d61a4a694220))
-- Automatic exit when failed to mount tmpfs on tmpfsdir([57b6473](https://github.com/Tools-cx-app/meta-magic_mount/commit/57b64735c6047d50dfe6635144e948ba84ae83de))
-- Removed `/debug_ramdisk` in default try-umount list([d9beda3](https://github.com/Tools-cx-app/meta-magic_mount/commit/d9beda3f1359d7cb12dd6f92ceac2776bda6b916))
-- Support random path of tempdir([34f91f1](https://github.com/Tools-cx-app/meta-magic_mount/commit/34f91f10473e892f6341e38a85c2d4a73b92f7a6))
+- Remove ZygiskNext umount conflict guard([b8c9deb](https://github.com/Tools-cx-app/meta-magic_mount-rs/commit/b8c9deb9eab838b062ed04e2d4a31de173ac5c5e))
+- Add 39 new languages (#6)([1ca24ea](https://github.com/Tools-cx-app/meta-magic_mount-rs/commit/1ca24ea129fe71bc13bda36beb1c94a6bf422877))
+- Add Literary Chinese (lzh) localization([a8c1dd7](https://github.com/Tools-cx-app/meta-magic_mount-rs/commit/a8c1dd7001aed2582ab0f61a097afc6c808f2300))
+- Enhance languages([9c8d3d1](https://github.com/Tools-cx-app/meta-magic_mount-rs/commit/9c8d3d15c28e185ba5bf84840acedae56301f6d6))
+- Better installation process([b1c6a4e](https://github.com/Tools-cx-app/meta-magic_mount-rs/commit/b1c6a4e3f04867a1efe16b7111b10f85641b9170))
 
 ### <!-- 1 --> Bug Fixes
 
-- Improve layout and word breaking in module display (#70)([fa3eeae](https://github.com/Tools-cx-app/meta-magic_mount/commit/fa3eeaed815e0cb8d9d08c34e0f9331bb9acb35c))
-- Fix complete in xtask([c5b8990](https://github.com/Tools-cx-app/meta-magic_mount/commit/c5b8990d4baa5a7faa677d2bea67a72d8e76ade9))
-- Fix rz panic([2f9310e](https://github.com/Tools-cx-app/meta-magic_mount/commit/2f9310e478b149ac325ee316458e68b0c1aa9762))
-- Fixed parameters across multiple platforms([633107f](https://github.com/Tools-cx-app/meta-magic_mount/commit/633107f658a026c16099854cb2ab58242ad9f700))
-- Fix Correct name([493fbba](https://github.com/Tools-cx-app/meta-magic_mount/commit/493fbbaf1ede31581bf76534917a3845e0e54433))
+- Build([68d9dc6](https://github.com/Tools-cx-app/meta-magic_mount-rs/commit/68d9dc6f7db96b16dbfaea460bde1aee84ccdfc7))
+- Correct localization terms per Taiwan usage conventions([4239601](https://github.com/Tools-cx-app/meta-magic_mount-rs/commit/423960150be29fb8779c707186ecc9a46a281b75))
 
-### <!-- 3 --> Refactor
+### <!-- 11 --> Other
 
-- Remove hymofs, diagnostics and custom tempdir support([95408bd](https://github.com/Tools-cx-app/meta-magic_mount/commit/95408bd0041e3879bbf35bf8571ef2a774b1081b))
-- Migrate to KernelSU theme system([1c8791d](https://github.com/Tools-cx-app/meta-magic_mount/commit/1c8791d6102043d2859c1c90ddd688bce88df316))
-
-### <!-- 4 --> Documentation
-
-- Moved README to docs([48ea0d1](https://github.com/Tools-cx-app/meta-magic_mount/commit/48ea0d14eb6b139ab4a9199852f3eee9bbe0ea85))
-
-### <!-- 5 --> Performance
-
-- Determine the ZN state directly using the ZN path.([4933cc6](https://github.com/Tools-cx-app/meta-magic_mount/commit/4933cc6199c6a427afc39d74bbedd4fdfb3111ff))
+- Dropped update url([9cef005](https://github.com/Tools-cx-app/meta-magic_mount-rs/commit/9cef005422bab85425693d33deeb1a10bbba8d7e))
+- Dropped webui check([5f65ae0](https://github.com/Tools-cx-app/meta-magic_mount-rs/commit/5f65ae0ec30445c19dcdb8c73fce2033038b6498))
+- Only upload files([ec4bf09](https://github.com/Tools-cx-app/meta-magic_mount-rs/commit/ec4bf09f8458993adf89613af582078d6d87dd51))
+- Remove info tab([c0467ce](https://github.com/Tools-cx-app/meta-magic_mount-rs/commit/c0467ceedb9b2f05ce2decde6f97252032f8388f))
+- Fix css format([fb327ff](https://github.com/Tools-cx-app/meta-magic_mount-rs/commit/fb327ffbcc1609a3782fb77c804a0d57ede055ce))
+- Sync modulestab with hybrid mount([f43ecbd](https://github.com/Tools-cx-app/meta-magic_mount-rs/commit/f43ecbdb330427b5c6956a48d0318586e7b7abf1))
+- Fix repo([d882170](https://github.com/Tools-cx-app/meta-magic_mount-rs/commit/d8821707fce943a4e3240fac6dcec454b6522194))
+- Opt lints logic([7b2f1c1](https://github.com/Tools-cx-app/meta-magic_mount-rs/commit/7b2f1c155181b10353627d1fbfd31a6caaf1af41))
 
 ### <!-- 8 --> Miscellaneous Tasks
 
-- Passed webui lints check([6774aa7](https://github.com/Tools-cx-app/meta-magic_mount/commit/6774aa74589fa3e7c59e970975042f3379950224))
-- Resolving the issue #74([72e378a](https://github.com/Tools-cx-app/meta-magic_mount/commit/72e378a6a0235de837a53a8ef7030ec95685bedc))
-- Fix cache error && dropped rust cache in release([4b8be3e](https://github.com/Tools-cx-app/meta-magic_mount/commit/4b8be3eb3188ffafc8f278da51643d5d223ac8bb))
-- Picked #74 suggestions([2c905bd](https://github.com/Tools-cx-app/meta-magic_mount/commit/2c905bd045e9500928f8a40935998eee56ac04fb))
-- Add run number in bot message([ff9239b](https://github.com/Tools-cx-app/meta-magic_mount/commit/ff9239beff4dc4d41f1117ec5a0dbc301a3e7c19))
-- Fmt && make cargo clippy happy([9b4627e](https://github.com/Tools-cx-app/meta-magic_mount/commit/9b4627e1600343b73a0d35998a45e6729b6ef1fa))
+- Fmt([078e912](https://github.com/Tools-cx-app/meta-magic_mount-rs/commit/078e9127da32e203c1c7e53a8bada438885ca138))
 
 
