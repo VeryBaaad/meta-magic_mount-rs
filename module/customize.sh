@@ -37,9 +37,14 @@ armeabi-v7a)
   ;;
 esac
 
+ui_print "- Installing architecture-specific binary"
+
+# Rename the selected binary to the generic name
+mv "$MODPATH/bin/$ARCH_BINARY" "$MODPATH/meta-mm" || abort "! Failed to rename binary"
+rm -rf "$MODPATH/bin"
+
 # Ensure the binary is executable
-chmod 755 "$MODPATH/bin/$ARCH_BINARY" || abort "! Failed to set permissions"
-ln -s "./bin/$ARCH_BINARY" "$MODPATH/meta-mm" || abort "! Failed to create symlink"
+chmod 755 "$MODPATH/meta-mm" || abort "! Failed to set permissions"
 
 ui_print "- mmrs binary installed"
 
@@ -56,6 +61,8 @@ if [ ! -f "/data/adb/magic_mount/config.toml" ]; then
   fi
 
 fi
+
+rm -f "$MODPATH/config_apatch.toml"
 
 ui_print "- Installation complete"
 ui_print "- Welcome to mmrs!"

@@ -1,5 +1,4 @@
 webroot/
-signature
 module.prop
-bin/*
+magic_mount_rs
 *.zip

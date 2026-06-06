@@ -7,12 +7,7 @@
 
 MODDIR="${0%/*}"
 
-ABI=$(getprop ro.product.cpu.abi)
-
-if [ -z "$ABI" ]; then
-  abort "! Failed to detect device architecture"
-fi
-
+# Binary path (architecture-specific binary selected during installation)
 BINARY="$MODDIR/meta-mm"
 
 if [ ! -f "$BINARY" ]; then
