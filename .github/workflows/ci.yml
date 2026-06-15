@@ -70,13 +70,13 @@ jobs:
           pnpm install --frozen-lockfile
       - name: Build
         run: |
-          cargo xtask build
+          cargo xtask build -t arm64
+          cargo xtask build -t armv7
       - name: Upload release version
         uses: actions/upload-artifact@v7
         with:
           name: meta-mm-${{ github.run_number }}
           path: output/*.zip
-          archive: false
       - name: Upload
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         env:
