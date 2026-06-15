@@ -52,16 +52,6 @@ jobs:
         run: |
           cargo xtask build -t arm64
           cargo xtask build -t armv7
-      - name: Prepare artifacts
-        run: |
-          mkdir -p output/artifact/
-          unzip "output/*.zip" -d output/artifact/
-      - name: Upload release version
-        uses: actions/upload-artifact@v7
-        with:
-          name: meta-mm
-          compression-level: 9
-          path: output/artifact/
       - name: Install git-cliff
         run: |
           cargo install --git https://github.com/orhun/git-cliff
