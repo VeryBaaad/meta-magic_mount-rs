@@ -30,7 +30,7 @@ jobs:
           targets: aarch64-linux-android
           components: rust-src
       - name: Install pnpm
-        uses: pnpm/action-setup@v6.0.8
+        uses: pnpm/action-setup@v6.0.9
         with:
           run_install: false
           package_json_file: webui/package.json
@@ -50,22 +50,12 @@ jobs:
           pnpm install --frozen-lockfile
       - name: Build
         run: |
-          cargo xtask build
-      - name: Prepare artifacts
-        run: |
-          mkdir -p output/artifact/
-          unzip "output/*.zip" -d output/artifact/
-      - name: Upload release version
-        uses: actions/upload-artifact@v7
-        with:
-          name: meta-mm
-          compression-level: 9
-          path: output/artifact/
+          cargo xtask build -t arm64
+          cargo xtask build -t armv7
+          cargo xtask build -t universal
       - name: Install git-cliff
         run: |
-          curl -sSL https://github.com/orhun/git-cliff/releases/download/v2.10.1/git-cliff-2.10.1-x86_64-unknown-linux-gnu.tar.gz -o git-cliff.tar.gz
-          tar -xf git-cliff.tar.gz
-          sudo mv git-cliff-2.10.1/git-cliff /usr/local/bin/
+          cargo install --git https://github.com/orhun/git-cliff
       - name: Generate Changelog
         run: |
           PROP_FILE="module/module.prop"

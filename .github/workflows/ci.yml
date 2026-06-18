@@ -48,7 +48,7 @@ jobs:
           targets: aarch64-linux-android
           components: rust-src
       - name: Install pnpm
-        uses: pnpm/action-setup@v6.0.8
+        uses: pnpm/action-setup@v6.0.9
         with:
           cache: ${{ github.event_name == 'push' }}
           cache_dependency_path: webui/pnpm-lock.yaml
@@ -68,17 +68,6 @@ jobs:
         run: |
           cd webui/
           pnpm install --frozen-lockfile
-      - name: Setup keys
-        env:
-          PRIV_KEY: ${{ secrets.SIGN_PRIVATE_KEY }}
-          PUB_KEY: ${{ secrets.SIGN_PUBLIC_KEY }}
-        run: |
-          if [ -z "${PRIV_KEY:-}" ] || [ -z "${PUB_KEY:-}" ]; then
-            openssl rand -out priv_key 64
-            openssl rand -out pub_key 32
-          fi
-          echo "${PRIV_KEY}" | base64 -d > priv_key
-          echo "${PUB_KEY}" | base64 -d > pub_key
       - name: Build
         env:
           MAZOKU_SECRET_TEXT: ${{ secrets.MAZOKU_SECRET_TEXT }}

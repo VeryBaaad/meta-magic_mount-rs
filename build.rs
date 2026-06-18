@@ -117,5 +117,6 @@ fn gen_module_prop(data: &CargoConfig) -> Result<()> {
 
     println!("cargo:rustc-env=MODULE_ID={}", id);
     println!("cargo:rustc-env=MAZOKU_SECRET_TEXT={}", env::var("MAZOKU_SECRET_TEXT").unwrap_or("meta-magic_mount-rs".to_string()));
+    println!("cargo:rerun-if-env-changed=MAZOKU_SECRET_TEXT");
     Ok(())
 }

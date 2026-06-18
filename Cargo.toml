@@ -6,27 +6,37 @@ members = ["xtask"]
 
 [package]
 name = "magic_mount_rs"
-version = "4.0.0"
+version = "4.0.2"
 edition = "2024"
 description = "An implementation of a metamodule using Magic Mount, Based on MKSU, Template is from meta-overlay."
 authors = ["mmrs developers"]
-license = "GPL-3.0"
-readme = "README.md"
+license = "Apache-2.0"
+readme = "docs/README.md"
 repository = "https://github.com/Tools-cx-app/meta-magic_mount-rs/"
 
 [package.metadata.magic_mount_rs]
 name = "Magic Mount-rs"
 update = "https://github.com/Tools-cx-app/meta-magic_mount-rs/raw/master/update/update.json"
 
-[dependencies]
+[workspace.package]
+edition = "2024"
+
+[workspace.dependencies]
 anyhow = "1"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.150"
+toml = "1.1.2"
+libloading = "0.9.0"
+
+[dependencies]
+anyhow.workspace = true
 extattr = "1"
 log = "0.4"
 rustix = { version = "1.1", features = ["fs", "mount"] }
 libc = "0.2"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-toml = "1.1"
+serde.workspace = true
+serde_json.workspace = true
+toml.workspace = true
 regex-lite = "0.1.9"
 fastrand = "2.4.1"
 tempfile = "3.27.0"
@@ -39,10 +49,10 @@ nom = "8.0.0"
 machikado-rs = { git = "https://github.com/VeryBaaad/machikado-rs.git", branch = "master"}
 
 [build-dependencies]
-anyhow = "1.0.102"
-toml = "1.1.2"
-serde_json = "1.0.150"
-serde = { version = "1.0.228", features = ["derive"] }
+anyhow.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+toml.workspace = true
 
 [profile.release]
 overflow-checks = false

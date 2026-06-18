@@ -38,16 +38,21 @@ fn init_logger() {
     }
 }
 
-fn verify_module_safety() -> Result<(), Box<dyn std::error::Error>> {
+fn verify_module_safety() -> std::result::Result<(), Box<dyn std::error::Error>> {
     let machikado: Vec<u8> = std::fs::read(defs::MACHIKADO_FILE)?;
     let mazoku: Vec<u8> = std::fs::read(defs::MAZOKU_FILE)?;
     let secret_env: &[u8] = env!("MAZOKU_SECRET_TEXT").as_bytes();
+    // Exclusions must match build-time signing in xtask/src/main.rs:
+    // - machikado: the signature file itself (didn't exist when signing)
+    // - mazoku: verified separately by verify_mazoku()
+    // - module.prop: may be modified by the module system
     let entries = load_folder_files(
         Path::new(defs::SELF_MODULE_PATH),
         &[],
         &["machikado", "mazoku", "module.prop"],
     )?;
 
+    // Step-by-step verification with clear error attribution
     let member_pubkey: &[u8; 32] = machikado[64..]
         .try_into()
         .map_err(|_| format!("machikado blob too short: {} bytes", machikado.len()))?;
@@ -63,19 +68,6 @@ fn verify_module_safety() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn init_list() {
-    /*super::magic_mount::node::IGNORE_LIST.get_or_init(|| {
-        fs::read_to_string(defs::IGNORE_LIST_PATH).map_or_else(
-            |_| None,
-            |f| {
-                Some(
-                    f.lines()
-                        .filter(|s| !s.starts_with('#'))
-                        .map(std::string::ToString::to_string)
-                        .collect(),
-                )
-            },
-        )
-    });*/
     super::parser::COMMAND_LIST
         .get_or_init(|| super::parser::parser_custom(defs::CUSTOM_LIST_PATH));
 }
@@ -101,7 +93,6 @@ pub fn pre_init() {
         "! unsupported late load mode"
     );
 
-    ksucalls::check_ksu();
     init_logger();
     if let Err(e) = verify_module_safety() {
         log::error!("module safety verification failed: {e}");
