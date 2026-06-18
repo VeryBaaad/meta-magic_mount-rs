@@ -1,0 +1,28 @@
+# Copyright (C) 2026 Tools-cx-app <localhost.hutao@gmail.com>
+# SPDX-License-Identifier: Apache-2.0
+
+name: test
+on:
+  push:
+    branches: ["master"]
+    paths:
+      - 'src/**'
+  pull_request:
+    branches: ["master"]
+    paths:
+      - 'src/**'
+permissions:
+  contents: read
+env:
+  CARGO_TERM_COLOR: always
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: nightly
+      - name: Run test
+        run: cargo test
