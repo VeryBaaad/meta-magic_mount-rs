@@ -68,7 +68,20 @@ jobs:
         run: |
           cd webui/
           pnpm install --frozen-lockfile
+      - name: Setup keys
+        env:
+          PRIV_KEY: ${{ secrets.SIGN_PRIVATE_KEY }}
+          PUB_KEY: ${{ secrets.SIGN_PUBLIC_KEY }}
+        run: |
+          if [ -z "${PRIV_KEY:-}" ] || [ -z "${PUB_KEY:-}" ]; then
+            openssl rand -out priv_key 64
+            openssl rand -out pub_key 32
+          fi
+          echo "${PRIV_KEY}" | base64 -d > priv_key
+          echo "${PUB_KEY}" | base64 -d > pub_key
       - name: Build
+        env:
+          MAZOKU_SECRET_TEXT: ${{ secrets.MAZOKU_SECRET_TEXT }}
         run: |
           cargo xtask build -t arm64
           cargo xtask build -t armv7
