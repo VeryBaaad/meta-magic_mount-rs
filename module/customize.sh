@@ -24,22 +24,16 @@ fi
 ui_print "- Device platform: $ABI"
 
 case "$ABI" in
-arm64-v8a)
-  ui_print "- Selected architecture: arm64-v8a"
-  ARCH_BINARY="arm64-v8a/magic_mount_rs"
-  ;;
-armeabi-v7a)
-  ui_print "- Selected architecture: armeabi-v7a"
-  ARCH_BINARY="armeabi-v7a/magic_mount_rs"
+arm64-v8a|armeabi-v7a)
+  ui_print "- Selected architecture: $ABI"
   ;;
 *)
   abort "! Unsupported platform: $ABI"
   ;;
 esac
 
-# Ensure the binary is executable
-chmod 755 "$MODPATH/bin/$ARCH_BINARY" || abort "! Failed to set permissions"
-ln -s "./bin/$ARCH_BINARY" "$MODPATH/meta-mm" || abort "! Failed to create symlink"
+# Binary is named "meta-mm" in the zip — metamount.sh references it directly.
+chmod 755 "$MODPATH/meta-mm" || abort "! Failed to set permissions"
 
 ui_print "- mmrs binary installed"
 

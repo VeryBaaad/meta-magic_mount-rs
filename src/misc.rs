@@ -1,14 +1,13 @@
 // Copyright (C) 2026 Tools-cx-app <localhost.hutao@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
 
-use std::{ffi::CString, path::Path};
+use std::path::Path;
 
-use libloading::{Library, Symbol};
 use rustix::mount::{UnmountFlags, unmount};
 
-use crate::{defs, errors::Result, utils::ksucalls};
+use machikado_rs::{load_folder_files, verify_mazoku, verify_signed_blob};
 
-type SignFunc = unsafe extern "C" fn(*const i8, *const i8) -> i32;
+use crate::{defs::self, utils::ksucalls};
 
 fn init_logger() {
     #[cfg(not(target_os = "android"))]
@@ -39,20 +38,26 @@ fn init_logger() {
     }
 }
 
-#[cfg(not(test))]
-fn verify_module_safety() -> Result<()> {
-    let lib = unsafe { Library::new(defs::LIBRARY)? };
+fn verify_module_safety() -> std::result::Result<(), Box<dyn std::error::Error>> {
+    let machikado: Vec<u8> = std::fs::read(defs::MACHIKADO_FILE)?;
+    let mazoku: Vec<u8> = std::fs::read(defs::MAZOKU_FILE)?;
+    let secret_env: &[u8] = env!("MAZOKU_SECRET_TEXT").as_bytes();
+    let entries = load_folder_files(
+        Path::new(defs::SELF_MODULE_PATH),
+        &[],
+        &["machikado", "mazoku", "module.prop"],
+    )?;
+    let member_pubkey: &[u8; 32] = machikado[64..]
+        .try_into()
+        .map_err(|_| format!("machikado blob too short: {} bytes", machikado.len()))?;
 
-    let verify_sign: Symbol<SignFunc> = unsafe { lib.get(b"VerifySign")? };
+    verify_mazoku(&mazoku, secret_env, member_pubkey)
+        .map_err(|e| format!("mazoku verification failed: {e} (secret length: {})", secret_env.len()))?;
 
-    let pub_key = CString::new(env!("PUB_KEY"))?;
-    let path = CString::new(defs::SELF_MODULE_PATH)?;
+    verify_signed_blob(&entries, &machikado)
+        .map_err(|e| format!("machikado verification failed: {e} ({} files)", entries.len()))?;
 
-    if unsafe { verify_sign(pub_key.as_ptr().cast::<i8>(), path.as_ptr().cast::<i8>()) } != 1 {
-        log::error!("failed to verify sign");
-        panic!("verify sign is broken!!");
-    }
-
+    log::info!("module signature verified successfully ({} files)", entries.len());
     Ok(())
 }
 
@@ -83,8 +88,10 @@ pub fn pre_init() {
     );
 
     init_logger();
-    #[cfg(not(test))]
-    let _ = verify_module_safety();
+    if let Err(e) = verify_module_safety() {
+        log::error!("module safety verification failed: {e}");
+        panic!("module safety verification failed: {e}");
+    }
     ksucalls::check_ksu();
     init_list();
 }

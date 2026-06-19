@@ -35,6 +35,7 @@ fn main() -> Result<()> {
     println!("cargo:rerun-if-changed=Cargo.lock");
     println!("cargo:rerun-if-changed=Cargo.toml");
     println!("cargo:rerun-if-changed=.git");
+    println!("cargo:rerun-if-env-changed=MAZOKU_SECRET_TEXT");
 
     let toml = fs::read_to_string("Cargo.toml")?;
     let data: CargoConfig = toml::from_str(&toml)?;
@@ -115,9 +116,7 @@ fn gen_module_prop(data: &CargoConfig) -> Result<()> {
     writeln!(file, "metamodule=1")?;
 
     println!("cargo:rustc-env=MODULE_ID={}", id);
-    println!(
-        "cargo:rustc-env=PUB_KEY={}",
-        env::var("PUB_KEY").unwrap_or("test key".to_string())
-    );
+    println!("cargo:rustc-env=MAZOKU_SECRET_TEXT={}", env::var("MAZOKU_SECRET_TEXT").unwrap_or("meta-magic_mount-rs".to_string()));
+    println!("cargo:rerun-if-env-changed=MAZOKU_SECRET_TEXT");
     Ok(())
 }

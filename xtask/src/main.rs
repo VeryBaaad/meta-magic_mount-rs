@@ -4,8 +4,6 @@
 mod zip_ext;
 
 use std::{
-    env,
-    ffi::CString,
     fs,
     path::{Path, PathBuf},
     process::Command,
@@ -13,15 +11,11 @@ use std::{
 
 use anyhow::Result;
 use clap::{Parser, Subcommand, ValueEnum};
-use ed25519_dalek::SigningKey;
 use fs_extra::{dir, file};
-use libloading::{Library, Symbol};
 use serde::{Deserialize, Serialize};
 use zip::{CompressionMethod, write::FileOptions};
 
 use crate::zip_ext::zip_create_from_directory_with_options;
-
-type SignFunc = unsafe extern "C" fn(*const i8, *const i8) -> i32;
 
 #[derive(Deserialize)]
 struct Package {
@@ -50,11 +44,10 @@ struct Cli {
     command: Commands,
 }
 
-#[derive(Debug, ValueEnum, Copy, Clone)]
+#[derive(Debug, ValueEnum, Clone)]
 enum Targets {
     Arm64,
     Armv7,
-    Universal,
 }
 
 #[derive(Subcommand)]
@@ -102,7 +95,6 @@ impl Targets {
         match self {
             Self::Arm64 => "arm64",
             Self::Armv7 => "armv7",
-            Self::Universal => "universal",
         }
     }
 }
@@ -177,7 +169,7 @@ fn update() -> Result<()> {
         // Fixed typo here as well
         version: data.package.version.clone(),
         zipurl: format!(
-            "https://github.com/Tools-cx-app/meta-magic_mount-rs/releases/download/v{}/magic_mount_rs-{}-{}-universal.zip",
+            "https://github.com/Tools-cx-app/meta-magic_mount-rs/releases/download/v{}/magic_mount_rs-{}-{}.zip",
             data.package.version.clone(),
             &data.package.version,
             &cal_git_code()?
@@ -195,7 +187,7 @@ fn update() -> Result<()> {
 }
 
 fn check(verbose: bool) -> Result<()> {
-    let mut cargo = cargo_ndk(Targets::Universal);
+    let mut cargo = cargo_ndk();
     cargo.args(["check", "-Z", "build-std", "-Z", "trim-paths"]);
     cargo.env("RUSTFLAGS", "-C default-linker-libraries");
 
@@ -219,7 +211,7 @@ fn clean() -> Result<()> {
 
 fn lint(fix: bool) -> Result<()> {
     let command_builder = |fix: bool| {
-        let mut command = cargo_ndk(Targets::Universal);
+        let mut command = cargo_ndk();
         command.arg("clippy");
         if fix {
             command.args(["--fix", "--allow-dirty", "--allow-staged", "--all"]);
@@ -246,65 +238,39 @@ fn format(verbose: bool) -> Result<()> {
 
 fn match_build(verbose: bool, target: Targets) -> Result<()> {
     let temp_dir = temp_dir();
-    let bin_path = temp_dir.join("bin");
     let toml = fs::read_to_string("Cargo.toml")?;
     let data: CargoConfig = toml::from_str(&toml)?;
-    let (priv_key, pub_key) = generate_key()?;
-
-    unsafe {
-        env::set_var("PUB_KEY", pub_key.to_string_lossy().to_string());
-    }
 
     let _ = fs::remove_dir_all(&temp_dir);
     let _ = fs::create_dir_all(&temp_dir);
-    let _ = fs::create_dir_all(&bin_path);
-    build(verbose, target)?;
+    build(verbose)?;
     match target {
         Targets::Arm64 => {
-            let arm64_v8a = bin_path.join("arm64-v8a").join("magic_mount_rs");
-
-            let _ = fs::create_dir_all(&arm64_v8a.parent().unwrap());
-
             file::copy(
                 aarch64_bin_path(),
-                &arm64_v8a,
+                temp_dir.join("meta-mm"),
                 &file::CopyOptions::new().overwrite(true),
             )?;
-            fs::remove_dir_all(temp_dir.join("libs").join("armeabi-v7a"))?;
         }
         Targets::Armv7 => {
-            let armeabi_v7a = bin_path.join("armeabi-v7a").join("magic_mount_rs");
-
-            let _ = fs::create_dir_all(&armeabi_v7a.parent().unwrap());
-
             file::copy(
                 armv7_bin_path(),
-                &armeabi_v7a,
-                &file::CopyOptions::new().overwrite(true),
-            )?;
-            fs::remove_dir_all(temp_dir.join("libs").join("arm64-v8a"))?;
-        }
-        Targets::Universal => {
-            let arm64_v8a = bin_path.join("arm64-v8a").join("magic_mount_rs");
-            let armeabi_v7a = bin_path.join("armeabi-v7a").join("magic_mount_rs");
-
-            let _ = fs::create_dir_all(&arm64_v8a.parent().unwrap());
-            let _ = fs::create_dir_all(&armeabi_v7a.parent().unwrap());
-
-            file::copy(
-                armv7_bin_path(),
-                &armeabi_v7a,
-                &file::CopyOptions::new().overwrite(true),
-            )?;
-            file::copy(
-                aarch64_bin_path(),
-                &arm64_v8a,
+                temp_dir.join("meta-mm"),
                 &file::CopyOptions::new().overwrite(true),
             )?;
         }
     }
 
-    generate_sign(priv_key)?;
+    let priv_key: [u8; 64] = fs::read("priv_key")?
+        .try_into()
+        .map_err(|_| anyhow::anyhow!("priv_key must be exactly 64 bytes"))?;
+    let entries = machikado_rs::load_folder_files(
+        &temp_dir,
+        &[],
+        &["customize.sh", "mazoku", "module.prop"],
+    )?;
+    let machikado = machikado_rs::sign_file_entries(&entries, &priv_key)?;
+    fs::write(temp_dir.join("machikado"), machikado)?;
 
     let options: FileOptions<'_, ()> = FileOptions::default()
         .compression_method(CompressionMethod::Deflated)
@@ -318,18 +284,17 @@ fn match_build(verbose: bool, target: Targets) -> Result<()> {
         )),
         &temp_dir,
         |_| options,
-    )
-    .unwrap();
+    )?;
 
     Ok(())
 }
 
-fn build(verbose: bool, target: Targets) -> Result<()> {
+fn build(verbose: bool) -> Result<()> {
     let temp_dir = temp_dir();
 
     build_webui()?;
 
-    let mut cargo = cargo_ndk(target);
+    let mut cargo = cargo_ndk();
     let args = vec![
         "build",
         "-Z",
@@ -354,56 +319,16 @@ fn build(verbose: bool, target: Targets) -> Result<()> {
         &module_dir,
         &temp_dir,
         &dir::CopyOptions::new().overwrite(true).content_only(true),
-    )
-    .unwrap();
+    )?;
 
     if temp_dir.join(".gitignore").exists() {
-        fs::remove_file(temp_dir.join(".gitignore")).unwrap();
-    }
-    if temp_dir.join("signature").exists() {
-        fs::remove_file(temp_dir.join("signature")).unwrap();
+        fs::remove_file(temp_dir.join(".gitignore"))?;
     }
     Ok(())
 }
 
 fn module_dir() -> PathBuf {
     Path::new("module").to_path_buf()
-}
-
-fn generate_key() -> Result<(CString, CString)> {
-    let mut seed = [0u8; 32];
-
-    getrandom::fill(&mut seed)?;
-    let priv_key = SigningKey::from_bytes(&seed);
-    let pub_key = priv_key.verifying_key();
-
-    let hex_cstring = |bytes: &[u8]| -> CString {
-        let hex_string: String = bytes.iter().map(|b| format!("{:02x}", b)).collect();
-        CString::new(hex_string).unwrap()
-    };
-    let priv_key = hex_cstring(&priv_key.to_keypair_bytes());
-    let pub_key = hex_cstring(&pub_key.to_bytes());
-
-    Ok((priv_key, pub_key))
-}
-
-fn generate_sign(key: CString) -> Result<()> {
-    #[cfg(target_arch = "x86_64")]
-    let lib = unsafe { Library::new("libs/x86_64/libchecker.so")? };
-    #[cfg(target_arch = "aarch64")]
-    let lib = unsafe { Library::new("libs/arm64-v8a/libchecker.so")? };
-    #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
-    compile_error!("unsupported host arch, please use arm64-v8a/x86_64");
-
-    let generate_sign: Symbol<SignFunc> = unsafe { lib.get(b"GenerateSign")? };
-
-    let path = CString::new(temp_dir().to_string_lossy().to_string())?;
-
-    if unsafe { generate_sign(key.as_ptr() as *const i8, path.as_ptr() as *const i8) } < 0 {
-        eprintln!("failed to generate sign");
-    }
-
-    Ok(())
 }
 
 fn temp_dir() -> PathBuf {
@@ -424,22 +349,20 @@ fn armv7_bin_path() -> PathBuf {
         .join("magic_mount_rs")
 }
 
-fn cargo_ndk(target: Targets) -> Command {
+fn cargo_ndk() -> Command {
     let mut command = Command::new("cargo");
     command
-        .args(["+nightly", "ndk", "--platform", "26"])
+        .args([
+            "+nightly",
+            "ndk",
+            "--platform",
+            "26",
+            "-t",
+            "arm64-v8a",
+            "-t",
+            "armeabi-v7a",
+        ])
         .env("RUSTFLAGS", "-C default-linker-libraries");
-    match target {
-        Targets::Arm64 => {
-            command.args(["-t", "arm64-v8a"]);
-        }
-        Targets::Armv7 => {
-            command.args(["-t", "armeabi-v7a"]);
-        }
-        Targets::Universal => {
-            command.args(["-t", "arm64-v8a", "-t", "armeabi-v7a"]);
-        }
-    }
     command
 }
 

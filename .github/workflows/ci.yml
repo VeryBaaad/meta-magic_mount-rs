@@ -69,6 +69,8 @@ jobs:
           cd webui/
           pnpm install --frozen-lockfile
       - name: Build
+        env:
+          MAZOKU_SECRET_TEXT: ${{ secrets.MAZOKU_SECRET_TEXT }}
         run: |
           cargo xtask build -t arm64
           cargo xtask build -t armv7
