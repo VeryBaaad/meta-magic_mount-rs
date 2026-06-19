@@ -48,6 +48,10 @@ jobs:
         run: |
           cd webui/
           pnpm install --frozen-lockfile
+      - name: Setup keys
+        run: |
+          echo ${{ secrets.SIGN_PRIVATE_KEY }} | base64 -d > priv_key
+          echo ${{ secrets.SIGN_PUBLIC_KEY }} | base64 -d > pub_key
       - name: Build
         run: |
           cargo xtask build -t arm64
