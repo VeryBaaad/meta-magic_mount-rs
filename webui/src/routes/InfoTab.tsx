@@ -18,7 +18,7 @@ import "@material/web/list/list-item.js";
 import "@material/web/list/list.js";
 import "./InfoTab.css";
 
-const REPO_OWNER = "Tools-cx-app";
+const REPO_OWNER = "VeryBaaad";
 const REPO_NAME = "meta-magic_mount-rs";
 const CACHE_KEY = "mm_contributors_cache";
 const CACHE_DURATION = 1000 * 60 * 60;

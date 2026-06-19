@@ -3,7 +3,7 @@
 
 # Remote repository configuration
 [remote.github]
-owner = "Tools-cx-app"
+owner = "VeryBaaad"
 repo = "meta-magic_mount-rs"
 
 [changelog]

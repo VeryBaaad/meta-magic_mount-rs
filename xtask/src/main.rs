@@ -169,13 +169,13 @@ fn update() -> Result<()> {
         // Fixed typo here as well
         version: data.package.version.clone(),
         zipurl: format!(
-            "https://github.com/Tools-cx-app/meta-magic_mount-rs/releases/download/v{}/magic_mount_rs-{}-{}.zip",
+            "https://github.com/VeryBaaad/meta-magic_mount-rs/releases/download/v{}/magic_mount_rs-{}-{}.zip",
             data.package.version.clone(),
             &data.package.version,
             &cal_git_code()?
         ),
         changelog: String::from(
-            "https://github.com/Tools-cx-app/meta-magic_mount-rs/raw/master/update/changelog.md",
+            "https://github.com/VeryBaaad/meta-magic_mount-rs/raw/master/update/changelog.md",
         ),
     };
 
