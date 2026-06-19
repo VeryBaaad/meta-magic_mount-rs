@@ -42,17 +42,11 @@ fn verify_module_safety() -> std::result::Result<(), Box<dyn std::error::Error>>
     let machikado: Vec<u8> = std::fs::read(defs::MACHIKADO_FILE)?;
     let mazoku: Vec<u8> = std::fs::read(defs::MAZOKU_FILE)?;
     let secret_env: &[u8] = env!("MAZOKU_SECRET_TEXT").as_bytes();
-    // Exclusions must match build-time signing in xtask/src/main.rs:
-    // - machikado: the signature file itself (didn't exist when signing)
-    // - mazoku: verified separately by verify_mazoku()
-    // - module.prop: may be modified by the module system
     let entries = load_folder_files(
         Path::new(defs::SELF_MODULE_PATH),
         &[],
         &["machikado", "mazoku", "module.prop"],
     )?;
-
-    // Step-by-step verification with clear error attribution
     let member_pubkey: &[u8; 32] = machikado[64..]
         .try_into()
         .map_err(|_| format!("machikado blob too short: {} bytes", machikado.len()))?;
