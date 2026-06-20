@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2026 meta-magic_mount-rs developers
- * SPDX-License-Identifier: GPL-v3
+ * Copyright (C) 2026 Tools-cx-app <localhost.hutao@gmail.com>
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 export interface CustomMount {
@@ -23,6 +23,7 @@ export interface Module {
   author: string;
   description: string;
   is_mounted: boolean;
+  bottomopen?: boolean;
 }
 
 export interface SystemInfo {
@@ -32,15 +33,6 @@ export interface SystemInfo {
 
 export interface DeviceInfo {
   model: string;
-}
-
-export type ToastType = "info" | "success" | "error";
-
-export interface ToastMessage {
-  id: string;
-  text: string;
-  type: ToastType;
-  visible: boolean;
 }
 
 export interface LanguageOption {

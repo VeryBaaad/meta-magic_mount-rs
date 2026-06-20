@@ -26,6 +26,7 @@
     "deviceTitle": "器之形質",
     "moduleTitle": "模概覽",
     "moduleActive": "已載之模",
+    "mountSource": "載源",
     "modelLabel": "器型",
     "androidLabel": "機人之版",
     "kernelLabel": "核之版",
@@ -60,11 +61,14 @@
     "reload": "重載定制",
     "save": "存定制",
     "reset": "復初",
+    "apply": "存制",
     "loadSuccess": "定制已載",
     "loadError": "載定制不成",
     "loadDefault": "初制定矣",
     "saveSuccess": "定制存成",
     "saveFailed": "存定制不成"
+    "uiStyle": "界色",
+    "styleChanged": "界色更易"
   },
   "modules": {
     "title": "載錄",

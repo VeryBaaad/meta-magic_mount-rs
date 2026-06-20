@@ -1,9 +1,9 @@
 /*
- * Copyright (C) 2026 meta-magic_mount-rs developers
- * SPDX-License-Identifier: GPL-v3
+ * Copyright (C) 2026 Tools-cx-app <localhost.hutao@gmail.com>
+ * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { AppAPI, AppConfig } from "../types";
+import type { AppAPI, AppConfig } from "./types";
 import { DEFAULT_CONFIG } from "./constants";
 
 const MOCK_DELAY = 600;
@@ -85,7 +85,7 @@ export const MockAPI: AppAPI = {
 
   reboot: async () => {
     console.log("[MockAPI] Reboot requested");
-    // eslint-disable-next-line no-alert
+
     alert("Reboot requested (Mock)");
   },
 
