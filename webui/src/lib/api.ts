@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { AppAPI, AppConfig, CustomMount, Module } from "../types";
+import type { AppAPI, AppConfig, CustomMount, Module } from "./types";
 import { MockAPI } from "./api.mock";
 import { DEFAULT_CONFIG, PATHS } from "./constants";
 
@@ -19,7 +19,6 @@ let ksuExec: KsuExec | null = null;
 
 try {
   const ksu = await import("kernelsu").catch(() => null);
-
   ksuExec = ksu ? ksu.exec : null;
 } catch {}
 
@@ -207,7 +206,6 @@ const RealAPI: AppAPI = {
       if (errno === 0 && stdout) {
         try {
           const res = JSON.parse(stdout);
-
           return res.version ?? "0.0.0";
         } catch {
           return stdout.trim() || "0.0.0";

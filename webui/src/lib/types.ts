@@ -23,6 +23,7 @@ export interface Module {
   author: string;
   description: string;
   is_mounted: boolean;
+  bottomopen?: boolean;
 }
 
 export interface SystemInfo {
@@ -32,15 +33,6 @@ export interface SystemInfo {
 
 export interface DeviceInfo {
   model: string;
-}
-
-export type ToastType = "info" | "success" | "error";
-
-export interface ToastMessage {
-  id: string;
-  text: string;
-  type: ToastType;
-  visible: boolean;
 }
 
 export interface LanguageOption {

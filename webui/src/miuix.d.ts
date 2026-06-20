@@ -3,6 +3,5 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-interface Window {
-  litDisableBundleWarning: boolean;
-}
+declare module "miuix-vue";
+declare module "miuix-vue/icons";
