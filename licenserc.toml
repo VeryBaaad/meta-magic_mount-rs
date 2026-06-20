@@ -1,7 +1,10 @@
 # Copyright (C) 2026 Tools-cx-app <localhost.hutao@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-headerPath = "LICENSE_HEADER"
+inlineHeader = """
+Copyright (C) {{props["year"]}} {{props["owner"]}}
+SPDX-License-Identifier: Apache-2.0
+"""
 excludes = [
   ".github/bot/requirements.txt", 
   ".hintrc",
