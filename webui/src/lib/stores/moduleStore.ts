@@ -3,56 +3,65 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { ref } from "vue";
-import type { Module } from "../types";
+import { createRoot, createSignal } from "solid-js";
+import { createStore, reconcile } from "solid-js/store";
+
+import type { Module } from "../../types";
 import { API } from "../api";
 import { uiStore } from "./uiStore";
 
-const modules = ref<Module[]>([]);
-const loading = ref(false);
-let pendingLoad: Promise<void> | null = null;
-let hasLoaded = false;
+function createModuleStore() {
+  const [modules, setModulesStore] = createStore<Module[]>([]);
+  const [loading, setLoading] = createSignal(false);
+  let pendingLoad: Promise<void> | null = null;
+  let hasLoaded = false;
 
-async function loadModules() {
-  if (pendingLoad) {
+  async function loadModules() {
+    if (pendingLoad) {
+      return pendingLoad;
+    }
+
+    setLoading(true);
+    pendingLoad = (async () => {
+      try {
+        const data = await API.scanModules();
+        setModulesStore(reconcile(data));
+        hasLoaded = true;
+      } catch {
+        uiStore.showToast(
+          uiStore.L.modules.scanError ?? "Failed to scan modules",
+          "error",
+        );
+      } finally {
+        setLoading(false);
+        pendingLoad = null;
+      }
+    })();
+
     return pendingLoad;
   }
 
-  loading.value = true;
-  pendingLoad = (async () => {
-    try {
-      const data = await API.scanModules();
-      modules.value = [...data];
-      hasLoaded = true;
-    } catch {
-      uiStore.showToast("Failed to scan modules");
-    } finally {
-      loading.value = false;
-      pendingLoad = null;
+  function ensureModulesLoaded() {
+    if (hasLoaded) {
+      return Promise.resolve();
     }
-  })();
 
-  return pendingLoad;
-}
-
-function ensureModulesLoaded() {
-  if (hasLoaded) {
-    return Promise.resolve();
+    return loadModules();
   }
 
-  return loadModules();
+  return {
+    get modules() {
+      return modules;
+    },
+    get loading() {
+      return loading();
+    },
+    get hasLoaded() {
+      return hasLoaded;
+    },
+    ensureModulesLoaded,
+    loadModules,
+  };
 }
 
-export const moduleStore = {
-  get modules() {
-    return modules.value;
-  },
-  get loading() {
-    return loading.value;
-  },
-  get hasLoaded() {
-    return hasLoaded;
-  },
-  ensureModulesLoaded,
-  loadModules,
-};
+export const moduleStore = createRoot(createModuleStore);
