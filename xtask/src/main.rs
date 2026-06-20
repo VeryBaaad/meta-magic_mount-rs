@@ -268,6 +268,7 @@ fn match_build(verbose: bool, target: Targets) -> Result<()> {
         &temp_dir,
         &[],
         &["customize.sh", "mazoku", "module.prop"],
+        None,
     )?;
     let machikado = machikado_rs::sign_file_entries(&entries, &priv_key)?;
     fs::write(temp_dir.join("machikado"), machikado)?;

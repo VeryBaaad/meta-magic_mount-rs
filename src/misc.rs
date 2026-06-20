@@ -7,7 +7,7 @@ use rustix::mount::{UnmountFlags, unmount};
 
 use machikado_rs::{load_folder_files, verify_mazoku, verify_signed_blob};
 
-use crate::{defs::self, utils::ksucalls};
+use crate::{defs, utils::ksucalls};
 
 fn init_logger() {
     #[cfg(not(target_os = "android"))]
@@ -46,18 +46,30 @@ fn verify_module_safety() -> std::result::Result<(), Box<dyn std::error::Error>>
         Path::new(defs::SELF_MODULE_PATH),
         &[],
         &["machikado", "mazoku", "module.prop"],
+        None,
     )?;
     let member_pubkey: &[u8; 32] = machikado[64..]
         .try_into()
         .map_err(|_| format!("machikado blob too short: {} bytes", machikado.len()))?;
 
-    verify_mazoku(&mazoku, secret_env, member_pubkey)
-        .map_err(|e| format!("mazoku verification failed: {e} (secret length: {})", secret_env.len()))?;
+    verify_mazoku(&mazoku, secret_env, member_pubkey).map_err(|e| {
+        format!(
+            "mazoku verification failed: {e} (secret length: {})",
+            secret_env.len()
+        )
+    })?;
 
-    verify_signed_blob(&entries, &machikado)
-        .map_err(|e| format!("machikado verification failed: {e} ({} files)", entries.len()))?;
+    verify_signed_blob(&entries, &machikado).map_err(|e| {
+        format!(
+            "machikado verification failed: {e} ({} files)",
+            entries.len()
+        )
+    })?;
 
-    log::info!("module signature verified successfully ({} files)", entries.len());
+    log::info!(
+        "module signature verified successfully ({} files)",
+        entries.len()
+    );
     Ok(())
 }
 
