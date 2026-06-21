@@ -7,6 +7,9 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+    commit-message:
+      # Prefix all commit messages with "deps(cargo): "
+      prefix: "deps(cargo)"
     groups:
       crates:
         patterns:
@@ -15,6 +18,9 @@ updates:
     directory: "/xtask" # Location of package manifests
     schedule:
       interval: "weekly"
+    commit-message:
+      # Prefix all commit messages with "deps(cargo): "
+      prefix: "deps(cargo)"
     groups:
       crates:
         patterns:
@@ -26,6 +32,9 @@ updates:
     # Check the npm registry for updates every day (weekdays)
     schedule:
       interval: "weekly"
+    commit-message:
+      # Prefix all commit messages with "deps(webui): "
+      prefix: "deps(webui)"
     groups:
       crates:
         patterns:
@@ -34,6 +43,9 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    commit-message:
+      # Prefix all commit messages with "deps(action): "
+      prefix: "deps(action)"
     groups:
       actions:
         patterns:
