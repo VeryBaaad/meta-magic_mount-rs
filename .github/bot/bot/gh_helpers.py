@@ -29,13 +29,13 @@ async def get_last_ci_run(
     page = 1
     read = 0
     total = float("inf")
-    found_this_at_prior_page = False
-    wait_time = 1
+    found_before_at_prior_page = False
+    found_commit_at_prior_page = before_commit is None
     while read < total:
         data = await list_workflow_runs(page)
         total = data["total_count"]
-        read += len(data["workflow_runs"])
-        found_this = found_this_at_prior_page
+        found_before = found_before_at_prior_page
+        found_commit = found_commit_at_prior_page
         for run in data["workflow_runs"]:
             ignore_this = False
             if run["id"] == before:
@@ -58,8 +58,9 @@ async def get_last_ci_run(
                     return run, False
         else:
             page += 1
-            found_this_at_prior_page = True
-    logger.warning("No successful CI commit found")
+            read += len(data["workflow_runs"])
+            found_before_at_prior_page = found_before
+            found_commit_at_prior_page = found_commit
     return None
 
 

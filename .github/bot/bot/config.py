@@ -10,10 +10,6 @@ See commit detail <a href="{commit_url}">here</a>
 <a href="https://github.com/{github_repository}/actions/runs/{run_id}">#ci_{run_no}</a>
 """.strip()
 TG_MSG_EXPECTED_PARSE_MODE_CI = "html"
-# COMMIT_TITLE_MAX_LEN = 64
-# COMMIT_BODY_MAX_LEN = 128
-COMMIT_LIST_MAX_LEN = 1024
-
 
 TG_MSG_TEMPLATE_RELEASE = """
 New release available: **{name}**
@@ -23,7 +19,6 @@ New release available: **{name}**
 [Detail]({url})
 """
 TG_MSG_EXPECTED_PARSE_MODE_RELEASE = "markdown"
-RELEASE_NOTE_MAX_LEN = 2048
 
 GH_BASE_URL = "https://api.github.com/repos/"
 GH_CI_DIST_PATTERN = "./output/*.zip"
