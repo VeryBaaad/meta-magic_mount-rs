@@ -5,7 +5,7 @@ use std::path::Path;
 
 use rustix::mount::{UnmountFlags, unmount};
 
-use machikado_rs::{load_folder_files, verify_mazoku, verify_signed_blob, FileMapping};
+use machikado_rs::{FileMapping, load_folder_files, verify_mazoku, verify_signed_blob};
 
 use crate::{defs, utils::ksucalls};
 
