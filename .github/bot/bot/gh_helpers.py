@@ -22,41 +22,86 @@ async def get_workflow_file() -> str:
 
     return cache.workflow_file
 
-
-async def get_last_success_ci_commit() -> str | None:
-    logger.info("Getting last successful CI commit")
+async def get_last_ci_run(before_run_id: int | None = None, before_commit: str | None = None) -> tuple[dict, bool] | None:
+    before = before_run_id or settings.run_id
+    logger.info(f"Getting last CI run ID before {before}")
     page = 1
     read = 0
     total = float("inf")
-    found_this_at_prior_page = False
-    wait_time = 1
+    found_before_at_prior_page = False
+    found_commit_at_prior_page = before_commit is None
     while read < total:
         data = await list_workflow_runs(page)
         total = data["total_count"]
-        read += len(data["workflow_runs"])
-        found_this = found_this_at_prior_page
+        found_before = found_before_at_prior_page
+        found_commit = found_commit_at_prior_page
         for run in data["workflow_runs"]:
-            if run["id"] == settings.run_id:
-                found_this = True
-                logger.info("Found this CI run.")
+            ignore_this = False
+            if run["id"] == before:
+                found_before = True
+                logger.info(f"Found before CI run: {run['id']}")
+                ignore_this = True
+            if run['head_sha'] == before_commit:
+                found_commit = True
+                logger.info(f"Found before CI commit: {run['head_sha']}")
+                ignore_this = True
+            if ignore_this:
                 continue
-            if found_this:
-                if not run["conclusion"]:
-                    logger.info(
-                        f"CI run {run['id']} is not completed. Waiting {wait_time} seconds..."
-                    )
-                    await sleep(wait_time)
-                    wait_time *= 2
-                    break
-                if run["conclusion"] == "success":
-                    logger.info(f"Found last successful CI commit: {run['head_sha']}")
-                    return run["head_sha"]
+            if found_before and found_commit:
+                logger.info(f"Found previous CI run: {run['id']} with conclusion {run['conclusion']}")
+                if run['conclusion'] == "success":
+                    return run, True
+                elif not run['conclusion']:
+                    return run, False
         else:
             page += 1
-            found_this_at_prior_page = True
-    logger.warning("No successful CI commit found")
+            read += len(data["workflow_runs"])
+            found_before_at_prior_page = found_before
+            found_commit_at_prior_page = found_commit
     return None
 
+async def wait_for_ci_run(last_ci_run_id: int, waiting_max_secs: int = 600) -> dict | None:
+    logger.info(f"Waiting for run {last_ci_run_id} to finish")
+    elapsed_secs = 0
+    next_sleep_secs = 1
+    while True:
+        run = await get_workflow_run(last_ci_run_id)
+        if run["conclusion"]:
+            logger.info(f"Run {last_ci_run_id} finished with conclusion {run['conclusion']}")
+            if run["conclusion"] == "success":
+                return run
+            else:
+                return None
+        
+        elapsed_secs += next_sleep_secs
+        if elapsed_secs > waiting_max_secs:
+            logger.error(f"Waiting for run {last_ci_run_id} to finish for {waiting_max_secs} seconds, giving up")
+            return None
+        
+        await sleep(next_sleep_secs)
+        next_sleep_secs *= 2
+
+async def get_last_success_ci_run(before_commit: str | None = None) -> dict | None:
+    before_id = settings.run_id
+    while True:
+        last_ci_run = await get_last_ci_run(before_id, before_commit)
+        if not last_ci_run:
+            logger.error("No CI run found, giving up")
+            return None
+        last_ci_run, success = last_ci_run
+        before_id = last_ci_run['id']
+        if success:
+            return last_ci_run
+        last_ci_run = await wait_for_ci_run(last_ci_run['id'])
+        if last_ci_run:
+            return last_ci_run
+
+async def get_last_success_commit(before_commit: str | None = None) -> str | None:
+    last_ci_run = await get_last_success_ci_run(before_commit)
+    if not last_ci_run:
+        logger.error("No last success CI run found, giving up")
+        return None
+    return last_ci_run["head_sha"]
 
 # async def generate_history(base: str, head: str) -> tuple[str, str]:
 #     logger.info(f"Generating commit history between {base} and {head}")
