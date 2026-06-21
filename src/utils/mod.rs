@@ -85,8 +85,7 @@ where
     }
 }
 
-fn legacy_update_desc<S: ToString>(desc: &S) -> Result<()> {
-    let prop = fs::read_to_string(defs::MODULE_PROP)?;
+fn legacy_update_desc<S: ToString>(desc: &S, prop: &str) -> Result<()> {
     let mut temp = tempfile::Builder::new().tempfile()?;
 
     let new: Vec<String> = prop
@@ -110,6 +109,7 @@ fn legacy_update_desc<S: ToString>(desc: &S) -> Result<()> {
 }
 
 pub fn update_desc(file: u32, symbol: u32, ignore: u32) -> Result<()> {
+    fs::copy(defs::MODULE_PROP_ORIG, defs::MODULE_PROP)?;
     let text = format!(
         "[😋 MF {file},MS {symbol},IG {ignore}] An implementation of a metamodule using Magic Mount."
     );
@@ -142,7 +142,8 @@ pub fn update_desc(file: u32, symbol: u32, ignore: u32) -> Result<()> {
             "failed to set module config override.description: {}, fallback to write regular file",
             String::from_utf8_lossy(&output.stderr)
         );
-        legacy_update_desc(&text)?;
+        let prop_orig = fs::read_to_string(defs::MODULE_PROP_ORIG)?;
+        legacy_update_desc(&text, &prop_orig)?;
     }
 
     Ok(())

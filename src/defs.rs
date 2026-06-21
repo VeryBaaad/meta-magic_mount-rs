@@ -14,3 +14,4 @@ pub const SELF_MODULE_PATH: &str = "/data/adb/modules/magic_mount_rs";
 pub const MACHIKADO_FILE: &str = "/data/adb/modules/magic_mount_rs/machikado";
 pub const MAZOKU_FILE: &str = "/data/adb/modules/magic_mount_rs/mazoku";
 pub const MODULE_PROP: &str = "/data/adb/modules/magic_mount_rs/module.prop";
+pub const MODULE_PROP_ORIG: &str = "/data/adb/modules/magic_mount_rs/module.prop.orig";
