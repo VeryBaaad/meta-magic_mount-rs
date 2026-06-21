@@ -5,9 +5,7 @@ from typing import cast
 from asyncio import sleep
 
 from . import cache, logger, settings
-from .github import get_workflow_run, list_workflow_runs  # , compare_commit
-
-# from .parsing import parse_commit_message
+from .github import get_workflow_run, list_workflow_runs, compare_commit
 
 
 async def get_workflow_file() -> str:
@@ -23,8 +21,11 @@ async def get_workflow_file() -> str:
     return cache.workflow_file
 
 
-async def get_last_success_ci_commit() -> str | None:
-    logger.info("Getting last successful CI commit")
+async def get_last_ci_run(
+    before_run_id: int | None = None, before_commit: str | None = None
+) -> tuple[dict, bool] | None:
+    before = before_run_id or settings.run_id
+    logger.info(f"Getting last CI run ID before id {before} and commit {before_commit}")
     page = 1
     read = 0
     total = float("inf")
@@ -36,21 +37,25 @@ async def get_last_success_ci_commit() -> str | None:
         read += len(data["workflow_runs"])
         found_this = found_this_at_prior_page
         for run in data["workflow_runs"]:
-            if run["id"] == settings.run_id:
-                found_this = True
-                logger.info("Found this CI run.")
+            ignore_this = False
+            if run["id"] == before:
+                found_before = True
+                logger.info(f"Found before CI run: {run['id']}")
+                ignore_this = True
+            if run["head_sha"] == before_commit:
+                found_commit = True
+                logger.info(f"Found before CI commit: {run['head_sha']}")
+                ignore_this = True
+            if ignore_this:
                 continue
-            if found_this:
-                if not run["conclusion"]:
-                    logger.info(
-                        f"CI run {run['id']} is not completed. Waiting {wait_time} seconds..."
-                    )
-                    await sleep(wait_time)
-                    wait_time *= 2
-                    break
+            if found_before and found_commit:
+                logger.info(
+                    f"Found previous CI run: {run['id']} with conclusion {run['conclusion']}"
+                )
                 if run["conclusion"] == "success":
-                    logger.info(f"Found last successful CI commit: {run['head_sha']}")
-                    return run["head_sha"]
+                    return run, True
+                elif not run["conclusion"]:
+                    return run, False
         else:
             page += 1
             found_this_at_prior_page = True
@@ -58,32 +63,69 @@ async def get_last_success_ci_commit() -> str | None:
     return None
 
 
-# async def generate_history(base: str, head: str) -> tuple[str, str]:
-#     logger.info(f"Generating commit history between {base} and {head}")
-#     msg = ""
-#     page = 1
-#     proceed_commits = 0
-#     total_commits = float("inf")
-#     while proceed_commits < total_commits:
-#         data = await compare_commit(base, head, page)
-#         total_commits = data["total_commits"]
-#         for commit in data["commits"]:
-#             len_msgs = len(msg)
-#             proceed_commits += 1
-#             msg += f"{parse_commit_message(commit['commit']['message'])}\n\n---\n\n"
-#             if len(msg) >= 512:
-#                 msg = msg[:len_msgs]
-#                 proceed_commits -= 1
-#                 msg += f"{total_commits - proceed_commits} more commits"
-#                 logger.info(
-#                     f"Generated commit history (truncated) with {proceed_commits} commits"
-#                 )
-#                 return data["html_url"], msg
-#         page += 1
-#     if not msg:
-#         msg = "No commits found???"
-#         logger.warning("No commits found in history")
-#     else:
-#         msg = msg[:-7]  # remove tail
-#         logger.info(f"Generated commit history with {proceed_commits} commits")
-#     return data["html_url"], msg
+async def wait_for_ci_run(
+    last_ci_run_id: int, waiting_max_secs: int = 600
+) -> dict | None:
+    logger.info(f"Waiting for run {last_ci_run_id} to finish")
+    elapsed_secs = 0
+    next_sleep_secs = 1
+    while True:
+        run = await get_workflow_run(last_ci_run_id)
+        if run["conclusion"]:
+            logger.info(
+                f"Run {last_ci_run_id} finished with conclusion {run['conclusion']}"
+            )
+            if run["conclusion"] == "success":
+                return run
+            else:
+                return None
+
+        elapsed_secs += next_sleep_secs
+        if elapsed_secs > waiting_max_secs:
+            logger.error(
+                f"Waiting for run {last_ci_run_id} to finish for {waiting_max_secs} seconds, giving up"
+            )
+            return None
+
+        await sleep(next_sleep_secs)
+        next_sleep_secs *= 2
+
+
+async def get_last_success_ci_run(before_commit: str | None = None) -> dict | None:
+    before_id = settings.run_id
+    while True:
+        last_ci_run_raw = await get_last_ci_run(before_id, before_commit)
+        if not last_ci_run_raw:
+            logger.error("No CI run found, giving up")
+            return None
+        last_ci_run, success = last_ci_run_raw
+        before_id = last_ci_run["id"]
+        if success:
+            return last_ci_run
+        last_ci_run_x = await wait_for_ci_run(last_ci_run["id"])
+        if last_ci_run_x:
+            return last_ci_run_x
+
+
+async def get_last_success_commit(before_commit: str | None = None) -> str | None:
+    last_ci_run = await get_last_success_ci_run(before_commit)
+    if not last_ci_run:
+        logger.error("No last success CI run found, giving up")
+        return None
+    return last_ci_run["head_sha"]
+
+
+async def get_git_log(base: str, head: str) -> str:
+    logger.info(f"Getting commit messages between {base} and {head}")
+    total = float("inf")
+    msgs: list[str] = []
+    page = 1
+    while len(msgs) < total:
+        data = await compare_commit(base, head, page=page)
+        total = data["total_commits"]
+        for commit in data["commits"]:
+            msgs.append(
+                commit["sha"][:7] + " " + commit["commit"]["message"].split("\n", 1)[0]
+            )
+        page += 1
+    return "\n".join(reversed(msgs))

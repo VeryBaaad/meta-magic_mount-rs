@@ -5,7 +5,6 @@ from httpx import AsyncClient
 
 from . import settings, logger
 from .config import GH_BASE_URL
-from .util import encrypt
 
 
 async def github_api(
@@ -21,7 +20,6 @@ async def github_api(
         "X-GitHub-Api-Version": "2026-03-10",
     }
     url = GH_BASE_URL + settings.github_repository + endpoint
-    logger.info(f"Making {method} request to {url}")
     async with AsyncClient() as client:
         response = await client.request(
             method=method, url=url, headers=headers, params=params, json=json
@@ -54,25 +52,9 @@ async def get_latest_release() -> dict:
     return data
 
 
-# async def compare_commit(base: str, head: str, page: int = 1) -> dict:
-#     logger.info(f"Comparing commits: {base}...{head} (page: {page})")
-#     return await github_api(endpoint=f"/compare/{base}...{head}", params={"page": page})
-
-
-async def get_public_key() -> tuple[str, str]:
-    logger.info("Getting GitHub public key for secrets encryption")
-    data = await github_api(endpoint="/actions/secrets/public-key")
-    logger.info(f"Got public key with ID: {data['key_id']}")
-    return data["key_id"], data["key"]
-
-
-async def set_secret(name: str, value: str):
-    logger.info(f"Setting GitHub secret: {name}")
-    kid, key = await get_public_key()
-    encrypted_value = encrypt(key, value)
-    await github_api(
-        endpoint=f"/actions/secrets/{name}",
-        method="PUT",
-        json={"encrypted_value": encrypted_value, "key_id": kid},
+async def compare_commit(base: str, head: str, page: int = 1) -> dict:
+    logger.info(f"Getting commits between {base} and {head}")
+    return await github_api(
+        endpoint=f"/compare/{base}...{head}",
+        params={"page": page},
     )
-    logger.info(f"Successfully set GitHub secret: {name}")

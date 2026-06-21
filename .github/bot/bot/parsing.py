@@ -4,10 +4,7 @@
 from textwrap import shorten
 
 from . import logger
-from .config import (
-    RELEASE_NOTE_MAX_LEN,
-    COMMIT_LIST_MAX_LEN,
-)  # COMMIT_TITLE_MAX_LEN, COMMIT_BODY_MAX_LEN
+from .config import PARSING_MAX_LEN
 
 
 def parse_release_body(body: str) -> str:
@@ -22,17 +19,6 @@ def parse_release_body(body: str) -> str:
     return parsed
 
 
-# def parse_commit_message(msg: str) -> str:
-#     logger.info("Parsing commit message")
-#     msg = msg.replace("<", "&lt;").replace(">", "&gt;") + "\n\n"
-#     title, body = msg.split("\n\n", 1)
-#     title = shorten(title, COMMIT_TITLE_MAX_LEN, placeholder="...")
-#     body = shorten(body, COMMIT_BODY_MAX_LEN, placeholder="...")
-#     parsed = f"{title}\n\n{body}".strip()
-#     logger.info(f"Parsed message: {parsed}")
-#     return parsed
-
-
 def parse_git_log(log: str) -> str:
     logger.info("Parsing git log")
     parsed = []
@@ -43,6 +29,8 @@ def parse_git_log(log: str) -> str:
             parsed_length += len(line) + 1
         else:
             break
-    parsed = "\n".join(parsed).replace("<", "&lt;").replace(">", "&gt;")
-    logger.info(f"Parsed log: {parsed}")
-    return parsed
+    parsed_str = "\n".join(reversed(parsed)).replace("<", "&lt;").replace(">", "&gt;")
+    if len(lines) > len(parsed):
+        parsed_str = f"...{len(lines)-len(parsed)} more commits...\n" + parsed_str
+    logger.info(f"Parsed log: {parsed_str}")
+    return parsed_str
