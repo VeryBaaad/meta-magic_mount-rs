@@ -267,7 +267,7 @@ function saveCustomMountDialog() {
           <MiuixIcon :icon="Layers" />
         </template>
       </MiuixBasicComponent>
-      <div v-if="configStore.config.partitions" class="chip-list">
+      <div v-if="configStore.config.partitions.length > 0" class="chip-list">
         <RemoveableLabel
           v-for="(partition, index) in configStore.config.partitions"
           :key="index"
