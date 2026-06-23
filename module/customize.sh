@@ -2,6 +2,7 @@
 # Copyright (C) 2026 meta-magic_mount-rs developers
 # SPDX-License-Identifier: Apache-2.0
 
+# shellcheck disable=SC2034
 SKIPUNZIP=1
 
 if [ -z "$APATCH" ] && [ -z "$KSU" ]; then
@@ -23,6 +24,7 @@ if [ ! -f "$TMPDIR/verify.sh" ]; then
   ui_print "! This zip may be corrupted, please try downloading again"
   abort    "*********************************************************"
 fi
+# shellcheck disable=SC1091
 . "$TMPDIR/verify.sh"
 
 extract 'module.prop'
