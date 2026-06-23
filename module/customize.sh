@@ -13,25 +13,6 @@ fi
 VERSION=$(grep_prop version "${MODPATH}/module.prop")
 ui_print "- mmrs version ${VERSION}"
 
-ui_print "- Detecting device architecture..."
-
-ABI=$(getprop ro.product.cpu.abi)
-
-if [ -z "$ABI" ]; then
-  abort "! Failed to detect device architecture"
-fi
-
-ui_print "- Device platform: $ABI"
-
-case "$ABI" in
-arm64-v8a|armeabi-v7a)
-  ui_print "- Selected architecture: $ABI"
-  ;;
-*)
-  abort "! Unsupported platform: $ABI"
-  ;;
-esac
-
 # Binary is named "meta-mm" in the zip — metamount.sh references it directly.
 chmod 755 "$MODPATH/meta-mm" || abort "! Failed to set permissions"
 
