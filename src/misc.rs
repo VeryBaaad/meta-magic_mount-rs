@@ -46,7 +46,7 @@ fn verify_module_safety() -> std::result::Result<(), Box<dyn std::error::Error>>
     let entries = load_folder_files(
         Path::new(defs::SELF_MODULE_PATH),
         &[],
-        &["machikado", "mazoku"],
+        &["machikado"],
         Some(&mapping),
     )?;
     let member_pubkey: &[u8; 32] = machikado[64..]
