@@ -13,7 +13,7 @@ if [ -n "$KSU_LATE_LOAD" ] && [ -n "$KSU" ]; then
   abort "! unsupported late load mode"
 fi
 
-VERSION=$(grep_prop version "${MODPATH}/module.prop")
+VERSION=$(grep_prop version "${TMPDIR}/module.prop")
 ui_print "- mmrs version ${VERSION}"
 
 ui_print "- Extracting verify.sh"
