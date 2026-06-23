@@ -15,6 +15,9 @@ use fs_extra::{dir, file};
 use serde::{Deserialize, Serialize};
 use zip::{CompressionMethod, write::FileOptions};
 
+use sha2::{Digest, Sha256};
+use std::io::{BufReader, Read};
+
 use crate::zip_ext::zip_create_from_directory_with_options;
 
 #[derive(Deserialize)]
@@ -267,6 +270,37 @@ fn match_build(verbose: bool, target: Targets) -> Result<()> {
     let entries = machikado_rs::load_folder_files(&temp_dir, &[], &["customize.sh"], None)?;
     let machikado = machikado_rs::sign_file_entries(&entries, &priv_key)?;
     fs::write(temp_dir.join("machikado"), machikado)?;
+
+    let mut vec_temp_dir: Vec<PathBuf> = vec![temp_dir.clone()];
+    while let Some(current) = vec_temp_dir.pop() {
+        for entry in fs::read_dir(current)? {
+            let entry = entry?;
+            let path = entry.path();
+            if path.is_dir() {
+                vec_temp_dir.push(path);
+            } else {
+                let mut hasher = Sha256::new();
+                let file = fs::File::open(&path)?;
+                let mut reader = BufReader::new(file);
+                let mut buffer = [0; 8192];
+                loop {
+                    let n = reader.read(&mut buffer)?;
+                    if n == 0 {
+                        break;
+                    }
+                    hasher.update(&buffer[..n]);
+                }
+                let hex: String = hasher
+                    .finalize()
+                    .iter()
+                    .map(|b| format!("{:02x}", b))
+                    .collect();
+                let mut out_path = path.into_os_string();
+                out_path.push(".sha256");
+                fs::write(out_path, hex)?;
+            }
+        }
+    }
 
     let options: FileOptions<'_, ()> = FileOptions::default()
         .compression_method(CompressionMethod::Deflated)
