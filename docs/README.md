@@ -88,8 +88,6 @@ cargo xtask build
 
 * [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0)
 
-> **注意：** `libs/` 与 `module/libs/` 目录内的代码**不进行开源**，不适用上述 Apache 2.0 许可。
-
 ## Star History
 
 <a href="https://www.star-history.com/?repos=Tools-cx-app%2Fmeta-magic_mount-rs&type=timeline&legend=top-left">
