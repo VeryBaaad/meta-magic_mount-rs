@@ -18,3 +18,4 @@ serde_json.workspace = true
 toml.workspace = true
 zip = "8.6.0"
 machikado-rs = { git = "https://github.com/VeryBaaad/machikado-rs.git", version = "0.0.4" }
+sha2 = "0.11.0"
