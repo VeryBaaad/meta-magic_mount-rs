@@ -4,12 +4,6 @@
 
 MODDIR="${0%/*}"
 
-ABI=$(getprop ro.product.cpu.abi)
-
-if [ -z "$ABI" ]; then
-  abort "! Failed to detect device architecture"
-fi
-
 BINARY="$MODDIR/meta-mm"
 
 if [ ! -f "$BINARY" ]; then
@@ -17,7 +11,7 @@ if [ ! -f "$BINARY" ]; then
   exit 1
 fi
 
-nohup $BINARY 2>&1
+$BINARY
 
 EXIT_CODE=$?
 
