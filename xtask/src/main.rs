@@ -265,7 +265,7 @@ fn match_build(verbose: bool, target: Targets) -> Result<()> {
         .try_into()
         .map_err(|_| anyhow::anyhow!("priv_key must be exactly 64 bytes"))?;
     let entries =
-        machikado_rs::load_folder_files(&temp_dir, &[], &["customize.sh", "mazoku"], None)?;
+        machikado_rs::load_folder_files(&temp_dir, &[], &["customize.sh"], None)?;
     let machikado = machikado_rs::sign_file_entries(&entries, &priv_key)?;
     fs::write(temp_dir.join("machikado"), machikado)?;
 
