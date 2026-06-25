@@ -24,5 +24,6 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: nightly
+          components: rustc-codegen-cranelift-preview
       - name: Run test
         run: cargo test
