@@ -3,9 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { For, Show } from "solid-js";
+import { For, Show, createSignal } from "solid-js";
 
 import { ICONS } from "../lib/constants";
+import { sysStore } from "../lib/stores/sysStore";
 import { uiStore } from "../lib/stores/uiStore";
 
 import "./TopBar.css";
@@ -23,6 +24,7 @@ interface MdDialogElement extends HTMLElement {
 
 export default function TopBar() {
   let langDialogRef: MdDialogElement | undefined;
+  const [showRebootConfirm, setShowRebootConfirm] = createSignal(false);
 
   function openLangDialog() {
     langDialogRef?.show();
@@ -37,12 +39,27 @@ export default function TopBar() {
     closeLangDialog();
   }
 
+  function reboot() {
+    setShowRebootConfirm(false);
+    void sysStore.rebootDevice();
+  }
+
   return (
     <>
       <header class="top-bar">
         <div class="top-bar-content">
           <h1 class="screen-title">{uiStore.L?.common?.appName}</h1>
           <div class="top-actions">
+            <md-icon-button
+              onClick={() => setShowRebootConfirm(true)}
+              title={uiStore.L.common.reboot}
+            >
+              <md-icon>
+                <svg viewBox="0 0 24 24">
+                  <path d={ICONS.power} />
+                </svg>
+              </md-icon>
+            </md-icon-button>
             <md-icon-button
               onClick={openLangDialog}
               title={uiStore.L?.common?.language}
@@ -58,6 +75,21 @@ export default function TopBar() {
       </header>
 
       <div class="dialog-container">
+        <md-dialog
+          open={showRebootConfirm()}
+          onClose={() => setShowRebootConfirm(false)}
+        >
+          <div slot="headline">{uiStore.L.common.rebootTitle}</div>
+          <div slot="content">{uiStore.L.common.rebootConfirm}</div>
+          <div slot="actions">
+            <md-text-button onClick={() => setShowRebootConfirm(false)}>
+              {uiStore.L.common.cancel}
+            </md-text-button>
+            <md-text-button onClick={reboot}>
+              {uiStore.L.common.reboot}
+            </md-text-button>
+          </div>
+        </md-dialog>
         <md-dialog ref={langDialogRef} class="lang-dialog">
           <div slot="headline">{uiStore.L.common.language}</div>
 

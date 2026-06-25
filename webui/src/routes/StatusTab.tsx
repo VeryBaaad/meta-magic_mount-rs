@@ -3,9 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Show, createMemo, createSignal } from "solid-js";
+import { Show, createMemo } from "solid-js";
 
-import BottomActions from "../components/BottomActions";
 import Skeleton from "../components/Skeleton";
 import { ICONS } from "../lib/constants";
 import { configStore } from "../lib/stores/configStore";
@@ -20,8 +19,6 @@ import "@material/web/iconbutton/filled-tonal-icon-button.js";
 import "./StatusTab.css";
 
 export default function StatusTab() {
-  const [showRebootConfirm, setShowRebootConfirm] = createSignal(false);
-
   const mountedCount = createMemo(
     () => moduleStore.modules.filter((module) => module.is_mounted).length,
   );
@@ -30,33 +27,15 @@ export default function StatusTab() {
     () => !moduleStore.loading && moduleStore.hasLoaded,
   );
 
-  function reboot() {
-    setShowRebootConfirm(false);
-    void sysStore.rebootDevice();
-  }
-
   return (
     <>
-      <div class="dialog-container">
-        <md-dialog
-          open={showRebootConfirm()}
-          onClose={() => setShowRebootConfirm(false)}
-        >
-          <div slot="headline">{uiStore.L.common.rebootTitle}</div>
-          <div slot="content">{uiStore.L.common.rebootConfirm}</div>
-          <div slot="actions">
-            <md-text-button onClick={() => setShowRebootConfirm(false)}>
-              {uiStore.L.common.cancel}
-            </md-text-button>
-            <md-text-button onClick={reboot}>
-              {uiStore.L.common.reboot}
-            </md-text-button>
-          </div>
-        </md-dialog>
-      </div>
-
       <div class="dashboard-grid">
-        <div class="hero-card">
+        <div
+          class="hero-card"
+          onClick={() => {
+            sysStore.loadStatus();
+          }}
+        >
           <div class="hero-bg-decoration">
             <svg class="hero-corner-blossom" viewBox="0 0 120 120">
               <defs>
@@ -219,37 +198,6 @@ export default function StatusTab() {
           </div>
         </div>
       </div>
-
-      <BottomActions>
-        <div class="spacer" />
-        <div class="action-row">
-          <md-filled-tonal-icon-button
-            class="reboot-btn"
-            onClick={() => setShowRebootConfirm(true)}
-            title={uiStore.L.common.reboot}
-          >
-            <md-icon>
-              <svg viewBox="0 0 24 24">
-                <path d={ICONS.power} />
-              </svg>
-            </md-icon>
-          </md-filled-tonal-icon-button>
-
-          <md-filled-tonal-icon-button
-            onClick={() => {
-              sysStore.loadStatus();
-            }}
-            disabled={sysStore.loading}
-            title={uiStore.L.status.refresh}
-          >
-            <md-icon>
-              <svg viewBox="0 0 24 24">
-                <path d={ICONS.refresh} />
-              </svg>
-            </md-icon>
-          </md-filled-tonal-icon-button>
-        </div>
-      </BottomActions>
     </>
   );
 }
