@@ -49,6 +49,7 @@ thiserror = "2.0.18"
 rustc-hash = "2.1.2"
 machikado-rs = { git = "https://github.com/VeryBaaad/machikado-rs.git", version = "1.0.0" }
 const_format = "0.2.36"
+hex = "0.4.3"
 
 [build-dependencies]
 anyhow.workspace = true
