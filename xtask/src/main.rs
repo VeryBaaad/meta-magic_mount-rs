@@ -270,7 +270,7 @@ fn match_build(verbose: bool, target: Targets) -> Result<()> {
     let entries =
         machikado_rs::load_folder_files(&temp_dir, &[], &["customize.sh", "verify.sh"], None)?;
     let machikado = machikado_rs::sign_file_entries(&entries, &priv_key)?;
-    fs::write(temp_dir.join("machikado"), machikado)?;
+    fs::write(temp_dir.join("machikado"), machikado.as_bytes())?;
 
     let mut vec_temp_dir: Vec<PathBuf> = vec![temp_dir.clone()];
     while let Some(current) = vec_temp_dir.pop() {
