@@ -839,11 +839,12 @@ dependencies = [
 
 [[package]]
 name = "machikado-rs"
-version = "0.0.4"
-source = "git+https://github.com/VeryBaaad/machikado-rs.git#9ee3fc352a725fffe827edd6ac4bd88ebbf9ec6f"
+version = "1.0.0"
+source = "git+https://github.com/VeryBaaad/machikado-rs.git#2292302fb4bff2f4f39a12bf851390067121185a"
 dependencies = [
  "ed25519-dalek",
  "rand",
+ "thiserror",
  "walkdir",
 ]
 

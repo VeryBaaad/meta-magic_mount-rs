@@ -5,7 +5,7 @@ use std::path::Path;
 
 use rustix::mount::{UnmountFlags, unmount};
 
-use machikado_rs::{FileMapping, load_folder_files, verify_mazoku, verify_signed_blob};
+use machikado_rs::{FileMapping, load_folder_files, verify};
 
 use crate::{defs, utils::ksucalls};
 
@@ -39,9 +39,9 @@ fn init_logger() {
 }
 
 fn verify_module_safety() -> std::result::Result<(), Box<dyn std::error::Error>> {
-    let machikado: Vec<u8> = std::fs::read(defs::MACHIKADO_FILE)?;
-    let mazoku: Vec<u8> = std::fs::read(defs::MAZOKU_FILE)?;
-    let secret_env: &[u8] = env!("MAZOKU_SECRET_TEXT").as_bytes();
+    let machikado = std::fs::read(defs::MACHIKADO_FILE)?;
+    let mazoku = std::fs::read(defs::MAZOKU_FILE)?;
+    let secret_env = env!("MAZOKU_SECRET_TEXT").as_bytes();
     let mapping = FileMapping::from(("module.prop", "module.prop.orig"));
     let entries = load_folder_files(
         Path::new(defs::SELF_MODULE_PATH),
@@ -49,23 +49,12 @@ fn verify_module_safety() -> std::result::Result<(), Box<dyn std::error::Error>>
         &["machikado", "update", "disable", "remove"],
         Some(&mapping),
     )?;
-    let member_pubkey: &[u8; 32] = machikado[64..]
-        .try_into()
-        .map_err(|_| format!("machikado blob too short: {} bytes", machikado.len()))?;
 
-    verify_mazoku(&mazoku, secret_env, member_pubkey).map_err(|e| {
-        format!(
-            "mazoku verification failed: {e} (secret length: {})",
-            secret_env.len()
-        )
-    })?;
-
-    verify_signed_blob(&entries, &machikado).map_err(|e| {
-        format!(
-            "machikado verification failed: {e} ({} files)",
-            entries.len()
-        )
-    })?;
+    match verify(&machikado, &mazoku, &entries, secret_env) {
+        (true, _) => {}
+        (false, Some(e)) => return Err(Box::new(e)),
+        (false, None) => unreachable!(),
+    }
 
     log::info!(
         "module signature verified successfully ({} files)",
