@@ -56,7 +56,6 @@ jobs:
         run: |
           cargo xtask build -t arm64
           cargo xtask build -t armv7
-          cargo xtask build -t universal
       - name: Install git-cliff
         run: |
           cargo install --git https://github.com/orhun/git-cliff
