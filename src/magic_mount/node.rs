@@ -137,6 +137,7 @@ impl Node {
         if list
             .iter()
             .any(|s| matches!(s, crate::parser::MountType::Ignore { source } if source == &path))
+            || path.ends_with(".replace")
         {
             return true;
         }
