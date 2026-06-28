@@ -122,7 +122,7 @@ impl Node {
         if lgetxattr(&path, defs::REPLACE_DIR_XATTR)
             .is_ok_and(|s| String::from_utf8_lossy(&s) == "y")
         {
-            return true;
+            true
         } else {
             path.as_ref().join(defs::REPLACE_DIR_FILE_NAME).exists()
         }
@@ -134,15 +134,9 @@ impl Node {
     {
         let list = COMMAND_LIST.get().unwrap();
         let path = path.as_ref().to_string_lossy();
-        if list
-            .iter()
+        list.iter()
             .any(|s| matches!(s, crate::parser::MountType::Ignore { source } if source == &path))
             || path.ends_with(".replace")
-        {
-            true
-        } else {
-            false
-        }
     }
 
     pub fn new_root<S>(name: S) -> Self
