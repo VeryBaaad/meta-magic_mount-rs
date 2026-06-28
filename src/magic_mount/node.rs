@@ -123,9 +123,9 @@ impl Node {
             .is_ok_and(|s| String::from_utf8_lossy(&s) == "y")
         {
             return true;
+        } else {
+            path.as_ref().join(defs::REPLACE_DIR_FILE_NAME).exists()
         }
-
-        path.as_ref().join(defs::REPLACE_DIR_FILE_NAME).exists()
     }
 
     fn dir_is_skip<P>(path: P) -> bool
@@ -139,10 +139,10 @@ impl Node {
             .any(|s| matches!(s, crate::parser::MountType::Ignore { source } if source == &path))
             || path.ends_with(".replace")
         {
-            return true;
+            true
+        } else {
+            false
         }
-
-        false
     }
 
     pub fn new_root<S>(name: S) -> Self
