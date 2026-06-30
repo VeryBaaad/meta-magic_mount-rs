@@ -1,5 +1,5 @@
 # Copyright (C) 2026 meta-magic_mount-rs developers
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: GPL-v3
 
 from . import logger, settings
 from .config import TG_MSG_TEMPLATE_RELEASE, TG_MSG_TEMPLATE_CI
