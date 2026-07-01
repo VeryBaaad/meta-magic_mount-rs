@@ -1,5 +1,5 @@
 // Copyright (C) 2026 meta-magic_mount-rs developers
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: GPL-v3
 
 use std::{fmt, fs, path::Path, sync::OnceLock};
 
