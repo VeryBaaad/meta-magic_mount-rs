@@ -44,12 +44,12 @@ jobs:
           package_json_file: webui/package.json
       - name: Setup Webui deps
         run: |
-          cd webui/
+          cd webui
           pnpm install --frozen-lockfile
       - name: Format
         run: |
           cargo fmt
-          cd webui/
+          cd webui
           pnpm lint --write
       - name: Commit
         if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
