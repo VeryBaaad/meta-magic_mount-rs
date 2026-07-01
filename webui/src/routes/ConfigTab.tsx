@@ -29,15 +29,18 @@ interface MdDialogElement extends HTMLElement {
 export default function ConfigTab() {
   const [initialConfigStr, setInitialConfigStr] = createSignal("");
   const [customMountDraft, setCustomMountDraft] = createSignal<CustomMount>({
-source: "",target: "",
+    source: "",
+    target: "",
   });
   const [editingCustomMountIndex, setEditingCustomMountIndex] = createSignal<
-    number | null>(null);
+    number | null
+  >(null);
   let mountSourceInputRef: any = null;
   let customMountDialogRef: MdDialogElement | undefined;
 
   const isDirty = createMemo(() => {
-    if (!initialConfigStr()) {return false;
+    if (!initialConfigStr()) {
+      return false;
     }
 
     return JSON.stringify(configStore.config) !== initialConfigStr();
