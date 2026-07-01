@@ -1,0 +1,64 @@
+# Copyright (C) 2026 meta-magic_mount-rs developers
+# SPDX-License-Identifier: GPL-v3
+
+name: fmt
+on:
+  push:
+    branches: ["master"]
+    paths:
+      - 'src/**'
+      - 'Cargo.*'
+      - 'webui/**'
+      - 'build.rs'
+  pull_request:
+    branches: ["master"]
+    paths:
+      - 'webui/**'
+      - 'src/**'
+      - 'Cargo.*'
+      - 'build.rs'
+permissions:
+  contents: write
+env:
+  CARGO_TERM_COLOR: always
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.ref || github.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: nightly
+          targets: aarch64-linux-android
+          components: rustfmt
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6.0.9
+        with:
+          cache: ${{ github.event_name == 'push' }}
+          cache_dependency_path: webui/pnpm-lock.yaml
+          run_install: false
+          package_json_file: webui/package.json
+      - name: Setup Webui deps
+        run: |
+          cd webui/
+          pnpm install --frozen-lockfile
+      - name: Format
+        run: |
+          cargo fmt
+          cd webui/
+          pnpm lint --write
+      - name: Commit
+        if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+        run: |
+          if [[ -z "$(git status --porcelain)" ]]; then
+            exit 0
+          fi
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git commit -am "style: fmt [skip ci]"
+          git push origin HEAD:${{ github.event.pull_request.head.ref || github.ref_name }}
+
