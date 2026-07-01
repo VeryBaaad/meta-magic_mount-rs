@@ -25,7 +25,7 @@ pub fn bind_mount(umount: bool) -> Result<()> {
         .collect();
 
     for (s, t) in bind_mount_list {
-        log::debug!("bind mount: {s} -> {t}");
+        log::debug!("bind mount: {s} > {t}");
 
         let source = Path::new(&s);
         let target = Path::new(&t);
