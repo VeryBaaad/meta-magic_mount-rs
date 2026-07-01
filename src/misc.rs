@@ -43,12 +43,7 @@ fn verify_module_safety() -> std::result::Result<(), Box<dyn std::error::Error>>
     let mazoku = std::fs::read(defs::MAZOKU_FILE)?;
     let secret_env = env!("MAZOKU_SECRET_TEXT").as_bytes();
     let mapping = FileMapping::from(("module.prop", "module.prop.orig"));
-    let entries = load_folder_files(
-        Path::new(defs::SELF_MODULE_PATH),
-        &[],
-        &["machikado", "update", "disable", "remove"],
-        Some(&mapping),
-    )?;
+    let entries = load_folder_files( Path::new(defs::SELF_MODULE_PATH), &[], &["machikado", "update", "disable", "remove"], Some(&mapping),)?;
 
     match verify(&machikado, &mazoku, &entries, secret_env) {
         (true, _) => {}
