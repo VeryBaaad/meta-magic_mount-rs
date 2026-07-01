@@ -50,7 +50,7 @@ jobs:
         run: |
           cargo fmt
           cd webui/
-          pnpm lint --fix
+          pnpm lint --write
       - name: Commit
         if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
         run: |
