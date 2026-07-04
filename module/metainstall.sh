@@ -84,11 +84,6 @@ ui_print "- Installation complete"
 
 metamodule_hot_install() {
 
-  # ksu only for now, verify on apatch later
-  if [ ! "$KSU" = true ]; then
-    return
-  fi
-
   if [ -z "$MODID" ]; then
     return
   fi
