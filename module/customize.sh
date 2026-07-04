@@ -9,7 +9,7 @@ if [ -z "$APATCH" ] && [ -z "$KSU" ]; then
   abort "! unsupported root platform"
 fi
 
-if [ -n "$KSU_LATE_LOAD" ] && [ -n "$KSU" ]; then
+if [ -n "$KSU_LATE_LOAD" ]; then
   abort "! unsupported late load mode"
 fi
 
