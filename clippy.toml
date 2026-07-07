@@ -4,5 +4,10 @@
 disallowed-types = [
     { path = "std::collections::HashMap", reason = "use FxHashMap" },
     { path = "std::collections::HashSet", reason = "use FxHashSet" },
-    { path = "std::collections::hash_map::RandomState", reason = "use BuildHasherDefault<FxHasher>"}
+    { path = "std::collections::hash_map::RandomState", reason = "use BuildHasherDefault<FxHasher>"},
+    { path = "std::sync::Mutex", reason = "use parking_lot::Mutex (faster, no poisoning, smaller)" },
+    { path = "std::sync::MutexGuard", reason = "use parking_lot::MutexGuard" },
+    { path = "std::sync::RwLock", reason = "use parking_lot::RwLock (faster, no poisoning, no writer starvation)" },
+    { path = "std::sync::RwLockReadGuard", reason = "use parking_lot::RwLockReadGuard" },
+    { path = "std::sync::RwLockWriteGuard", reason = "use parking_lot::RwLockWriteGuard" },
 ]
