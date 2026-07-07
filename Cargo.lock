@@ -845,8 +845,8 @@ dependencies = [
 
 [[package]]
 name = "machikado-rs"
-version = "1.0.0"
-source = "git+https://github.com/VeryBaaad/machikado-rs.git#2292302fb4bff2f4f39a12bf851390067121185a"
+version = "2.0.0"
+source = "git+https://github.com/VeryBaaad/machikado-rs.git#534024c946fd80f74700d928ea63f41fae985da2"
 dependencies = [
  "ed25519-dalek",
  "rand",

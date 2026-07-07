@@ -39,9 +39,13 @@ fn init_logger() {
 }
 
 fn verify_module_safety() -> std::result::Result<(), Box<dyn std::error::Error>> {
+    const ORG_PUBLIC: [u8; 32] = [
+        0x16, 0xbd, 0x7c, 0x31, 0x1b, 0xad, 0xf0, 0x52, 0xaa, 0x0c, 0x3a, 0xe1, 0x88, 0xf3, 0xf1,
+        0x41, 0xb5, 0x04, 0xcb, 0xbf, 0x08, 0x30, 0x61, 0xad, 0x3f, 0xfb, 0x21, 0x5d, 0x61, 0xc7,
+        0x40, 0xfe,
+    ];
     let machikado = std::fs::read(defs::MACHIKADO_FILE)?;
     let mazoku = std::fs::read(defs::MAZOKU_FILE)?;
-    let secret_env = env!("MAZOKU_SECRET_TEXT").as_bytes();
     let mapping = FileMapping::from(("module.prop", "module.prop.orig"));
     let entries = load_folder_files(
         Path::new(defs::SELF_MODULE_PATH),
@@ -50,7 +54,13 @@ fn verify_module_safety() -> std::result::Result<(), Box<dyn std::error::Error>>
         Some(&mapping),
     )?;
 
-    match verify(&machikado, &mazoku, &entries, secret_env) {
+    match verify(
+        &machikado,
+        &mazoku,
+        &entries,
+        env!("MODULE_ID"),
+        &ORG_PUBLIC,
+    ) {
         (true, _) => {}
         (false, Some(e)) => return Err(Box::new(e)),
         (false, None) => unreachable!(),
