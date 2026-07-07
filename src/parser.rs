@@ -3,7 +3,10 @@
 
 use std::{fmt, fs, path::Path, sync::OnceLock};
 
+use parking_lot::Mutex;
+
 pub static COMMAND_LIST: OnceLock<Vec<MountType>> = OnceLock::new();
+static FILES: Mutex<Vec<String>> = Mutex::new(Vec::new());
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MountType {
@@ -53,6 +56,24 @@ fn parse(content: &str) -> Vec<MountType> {
                     types.push(s);
                 }
                 None => {
+                    log::debug!("failed to parse {line}");
+                }
+            }
+        } else if line.starts_with("file") {
+            match parse_file(line) {
+                Some(s) => {
+                    if FILES.lock().contains(&s) {
+                        log::warn!("detected same file, skip {line} for solving loop");
+                    } else {
+                        log::debug!("new file: {s}");
+                        FILES.lock().push(s.clone());
+                        match fs::read_to_string(&s) {
+                            Ok(s) => types.extend(parse(&s)),
+                            Err(e) => log::warn!("failed to read {s}: {e}"),
+                        }
+                    }
+                }
+                _ => {
                     log::debug!("failed to parse {line}");
                 }
             }
@@ -139,11 +160,24 @@ fn parse_ignore(input: &str) -> Option<MountType> {
     }
 }
 
+fn parse_file(input: &str) -> Option<String> {
+    let tokens = tokenize(input);
+    if tokens.len() < 2 || (tokens[0] != "file" && tokens[0] != "add") {
+        return None;
+    }
+    let path = parse_path(&tokens[1]);
+    if path.is_empty() {
+        log::debug!("missing path, skip");
+        None
+    } else {
+        Some(path)
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use std::io::Write;
-
     use super::*;
+    use std::io::Write;
 
     #[test]
     fn parse_path_no_quotes() {
@@ -306,6 +340,82 @@ mod tests {
     fn parser_custom_file_not_found() {
         let result = parser_custom("/nonexistent/path/to/file");
         assert!(result.is_empty());
+    }
+
+    #[test]
+    fn parse_file_valid() {
+        let tempfile = tempfile::Builder::new().tempfile().unwrap();
+        assert_eq!(
+            parse_file(&format!("file {}", tempfile.path().to_string_lossy())),
+            Some(tempfile.path().to_string_lossy().to_string())
+        );
+    }
+
+    #[test]
+    fn parse_file_with_quoted_path() {
+        assert_eq!(
+            parse_file("file '/path with spaces'"),
+            Some("/path with spaces".to_string())
+        );
+        assert_eq!(
+            parse_file("file \"/another/path\""),
+            Some("/another/path".to_string())
+        );
+    }
+
+    #[test]
+    fn parse_file_missing_path() {
+        assert_eq!(parse_file("file"), None);
+    }
+
+    #[test]
+    fn parse_file_empty_quoted_path() {
+        assert_eq!(parse_file("file ''"), None);
+    }
+
+    #[test]
+    fn parse_file_add_keyword_supported() {
+        assert_eq!(
+            parse_file("add /path/to/config"),
+            Some("/path/to/config".to_string())
+        );
+    }
+
+    #[test]
+    fn parse_file_with_quoted_path_for_add() {
+        assert_eq!(
+            parse_file("add '/quoted path'"),
+            Some("/quoted path".to_string())
+        );
+    }
+
+    #[test]
+    fn parse_file_command_inclusion() {
+        let included = "bind /a /b\nignore /c\n";
+        let mut temp = tempfile::Builder::new().tempfile().unwrap();
+        temp.write_all(included.as_bytes()).unwrap();
+
+        let path = temp.path().to_str().unwrap();
+        let main_content = format!("file {}", path);
+
+        FILES.lock().clear();
+
+        let result = parse(&main_content);
+
+        assert_eq!(result.len(), 2);
+        assert_eq!(
+            result[0],
+            MountType::Mount {
+                source: "/a".to_string(),
+                target: "/b".to_string(),
+            }
+        );
+        assert_eq!(
+            result[1],
+            MountType::Ignore {
+                source: "/c".to_string(),
+            }
+        );
     }
 
     #[test]
