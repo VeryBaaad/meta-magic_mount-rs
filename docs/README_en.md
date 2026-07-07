@@ -76,5 +76,4 @@ Build artifacts will be located at:
 
 ## License
 
-
-Except for the files in the `libs/` and `module/libs/` directories, all other files in this project are open source under the [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0).
+[Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0).
