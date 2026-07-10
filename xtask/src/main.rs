@@ -51,6 +51,7 @@ struct Cli {
 enum Targets {
     Arm64,
     Armv7,
+    X86_64,
 }
 
 #[derive(Subcommand)]
@@ -98,6 +99,7 @@ impl Targets {
         match self {
             Self::Arm64 => "arm64",
             Self::Armv7 => "armv7",
+            Self::X86_64 => "x86_64",
         }
     }
 }
@@ -262,6 +264,13 @@ fn match_build(verbose: bool, target: Targets) -> Result<()> {
                 &file::CopyOptions::new().overwrite(true),
             )?;
         }
+        Targets::X86_64 => {
+            file::copy(
+                x86_64_bin_path(),
+                temp_dir.join("meta-mm"),
+                &file::CopyOptions::new().overwrite(true),
+            )?;
+        }
     }
 
     let priv_key: [u8; 64] = fs::read("priv_key")?
@@ -380,6 +389,13 @@ fn armv7_bin_path() -> PathBuf {
         .join("magic_mount_rs")
 }
 
+fn x86_64_bin_path() -> PathBuf {
+    Path::new("target")
+        .join("x86_64-linux-android")
+        .join("release")
+        .join("magic_mount_rs")
+}
+
 fn cargo_ndk() -> Command {
     let mut command = Command::new("cargo");
     command
@@ -390,6 +406,8 @@ fn cargo_ndk() -> Command {
             "26",
             "-t",
             "arm64-v8a",
+            "-t",
+            "x86_64",
             "-t",
             "armeabi-v7a",
         ])
