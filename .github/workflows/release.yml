@@ -27,7 +27,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: nightly
-          targets: aarch64-linux-android
+          targets: aarch64-linux-android, x86_64-linux-android, armv7-linux-androideabi
           components: rust-src, rustc-codegen-cranelift-preview
       - name: Install pnpm
         uses: pnpm/action-setup@v6.0.9
