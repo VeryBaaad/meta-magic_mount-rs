@@ -22,7 +22,7 @@ if [ ! -f "$TMPDIR/verify.sh" ]; then
   ui_print "*********************************************************"
   ui_print "! Unable to extract verify.sh!"
   ui_print "! This zip may be corrupted, please try downloading again"
-  abort    "*********************************************************"
+  abort "*********************************************************"
 fi
 # shellcheck disable=SC1091
 . "$TMPDIR/verify.sh"
