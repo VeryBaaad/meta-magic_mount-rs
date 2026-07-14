@@ -3,7 +3,7 @@
 
 use std::{fs, path::Path};
 
-use rustix::mount::{MountFlags, mount_bind, mount_remount};
+use rustix::mount::{MountFlags, UnmountFlags, mount_bind, mount_remount, unmount};
 
 use crate::{
     errors::Result, magic_mount::utils::mount_mirror, parser::COMMAND_LIST,
@@ -66,6 +66,9 @@ pub fn bind_mount(umount: bool) -> Result<()> {
         if umount {
             send_unmountable(&t);
         }
+
+        unmount(workdir.path(), UnmountFlags::DETACH)?;
+        drop(workdir);
     }
     Ok(())
 }
