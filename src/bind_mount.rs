@@ -30,22 +30,24 @@ pub fn bind_mount(umount: bool) -> Result<()> {
         let source = Path::new(&s);
         let target = Path::new(&t);
         let workdir = tempfile::Builder::new().tempdir()?;
-        let mut has_mirror = false;
+        let need_mirror = target.parent().is_some_and(|parent| {
+            parent.exists() && parent.read_dir().is_ok_and(|mut rd| rd.next().is_some())
+        }) && target.exists()
+            && target.is_dir();
 
         if let Some(parent) = target.parent()
-            && parent.exists()
+            && need_mirror
         {
             for entry in parent.read_dir()?.flatten() {
                 mount_mirror(parent, workdir.path(), &entry)?;
-                has_mirror = true;
             }
         }
-        if !source.exists() || (!target.exists() && !has_mirror) {
+        if !source.exists() || (!target.exists() && !need_mirror) {
             log::error!("source/target isn't existed, skip!!");
             continue;
         }
 
-        if has_mirror {
+        if need_mirror {
             // mirror source file to workdir
             let mirror_target = workdir.path().join(target.file_name().unwrap());
             if source.is_dir() {
