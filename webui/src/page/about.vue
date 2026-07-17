@@ -59,7 +59,7 @@ if (cached) {
 if (!contributors.value.length) {
   axios
     .get<Contributor[]>(
-      "https://api.github.com/repos/Tools-cx-app/meta-magic_mount-rs/contributors",
+      "https://api.github.com/repos/VeryBaaad/meta-magic_mount-rs/contributors",
     )
     .then(function (response) {
       const userContributors = response.data.filter(function (contributor) {
@@ -109,7 +109,7 @@ function getDisplayBio(bio: string | null) {
 }
 
 function open_github_repo() {
-  API.openLink("https://github.com/Tools-cx-app/meta-magic_mount-rs");
+  API.openLink("https://github.com/VeryBaaad/meta-magic_mount-rs");
 }
 </script>
 
@@ -124,7 +124,7 @@ function open_github_repo() {
     <MiuixCard class="ex-card">
       <MiuixArrowPreference
         :title="t('info.projectLink')"
-        summary="github.com/Tools-cx-app/meta-magic_mount-rs"
+        summary="github.com/VeryBaaad/meta-magic_mount-rs"
         @click="open_github_repo"
       />
     </MiuixCard>

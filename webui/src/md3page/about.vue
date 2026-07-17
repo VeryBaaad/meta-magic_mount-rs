@@ -14,7 +14,7 @@ import { sysStore } from "../lib/stores/sysStore";
 import axios from "axios";
 import { API } from "../lib/api";
 
-const REPO_OWNER = "Tools-cx-app";
+const REPO_OWNER = "VeryBaaad";
 const REPO_NAME = "meta-magic_mount-rs";
 
 interface Contributor {
@@ -62,7 +62,7 @@ if (cached) {
 if (!contributors.value.length) {
   axios
     .get<Contributor[]>(
-      "https://api.github.com/repos/Tools-cx-app/meta-magic_mount-rs/contributors",
+      "https://api.github.com/repos/VeryBaaad/meta-magic_mount-rs/contributors",
     )
     .then(function (response) {
       const userContributors = response.data.filter(function (contributor) {
