@@ -113,6 +113,7 @@ fn main() -> Result<()> {
                 log::error!("{cause:#?}");
             }
             log::error!("{:#?}", e.backtrace());
+            return Err(errors::Error::AnyHow(e));
         }
     }
 
@@ -128,6 +129,7 @@ fn main() -> Result<()> {
                     log::error!("{cause:#?}");
                 }
                 log::error!("{:#?}", e.backtrace());
+                return Err(errors::Error::AnyHow(e));
             }
         }
     }
