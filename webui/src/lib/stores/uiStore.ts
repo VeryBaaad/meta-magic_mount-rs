@@ -4,11 +4,13 @@
  */
 
 import { ref } from "vue";
+import { toast } from "kernelsu";
 import { showSnackbar } from "miuix-vue";
 import { getSupportedLocales, loadLocale, switchLocale } from "../../locales";
 
 const lang = ref("en");
 const isReady = ref(false);
+const uiStyle = ref<"miuix" | "md3">("miuix");
 
 const availableLanguages = ref<{ code: string; display: string }[]>([]);
 
@@ -17,12 +19,21 @@ async function fetchAvailableLanguages() {
 }
 
 function showToast(text: string): void {
-  showSnackbar({ message: text });
+  if (uiStyle.value === "miuix") {
+    showSnackbar({ message: text });
+  } else {
+    toast(text);
+  }
 }
 
 async function setLang(code: string) {
   lang.value = code;
   await switchLocale(code);
+}
+
+function setUiStyle(style: "miuix" | "md3") {
+  uiStyle.value = style;
+  localStorage.setItem("uiStyle", style);
 }
 
 async function init() {
@@ -31,6 +42,15 @@ async function init() {
   lang.value = savedLang;
   localStorage.removeItem("mm-fix-nav");
   await fetchAvailableLanguages();
+  const savedStyle = localStorage.getItem("uiStyle") as
+    "miuix" | "md3" | "custom" | null;
+  if (savedStyle === "miuix" || savedStyle === "md3") {
+    uiStyle.value = savedStyle;
+  } else if (savedStyle === "custom") {
+    uiStyle.value = "md3";
+    localStorage.setItem("uiStyle", "md3");
+  }
+  console.log(uiStyle.value);
   isReady.value = true;
 }
 
@@ -44,7 +64,12 @@ export const uiStore = {
   get isReady() {
     return isReady.value;
   },
+  get uiStyle() {
+    return uiStyle.value;
+  },
   showToast,
   setLang,
+  setUiStyle,
   init,
+  fetchAvailableLanguages,
 };
