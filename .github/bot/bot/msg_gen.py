@@ -3,7 +3,7 @@
 
 from . import logger, settings
 from .config import TG_MSG_TEMPLATE_RELEASE, TG_MSG_TEMPLATE_CI
-from .parsing import parse_release_body, parse_git_log
+from .parsing import parse_git_log
 from .github import get_latest_release
 from .gh_helpers import get_last_success_commit, get_git_log
 
