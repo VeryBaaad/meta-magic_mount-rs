@@ -61,12 +61,12 @@
     "reload": "重新闻闻配置",
     "save": "用小爪爪按住",
     "reset": "重新开始玩",
-    "apply": "应用",
+    "apply": "按住",
     "loadSuccess": "小设定已经记在小本本上啦",
     "loadError": "记小设定时爪爪滑了一下喵呜",
     "loadDefault": "已用最舒服默认设定",
     "saveSuccess": "藏好小设定啦，尾巴开心摇喵",
-    "saveFailed": "藏小设定时被毛线球绊倒了喵，再试一次嘛"
+    "saveFailed": "藏小设定时被毛线球绊倒了喵，再试一次嘛",
     "uiStyle": "窝窝风格",
     "styleChanged": "窝窝已更换喵~"
   },
