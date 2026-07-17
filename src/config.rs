@@ -392,13 +392,12 @@ mod tests {
         let config_file_path = tmp_dir.path().join("config.toml");
 
         let mut config = Config::default();
-        config.mountsource = "Magisk".to_string();
         config.partitions = vec!["vendor".to_string()];
         config.umount = true;
         assert!(config.save(&config_file_path).is_ok());
 
         let loaded_config = Config::load(&config_file_path).unwrap();
-        assert_eq!(loaded_config.mountsource, "Magisk");
+        assert_eq!(loaded_config.mountsource, "KSU");
         assert_eq!(loaded_config.partitions, vec!["vendor".to_string()]);
         assert!(loaded_config.umount);
     }
