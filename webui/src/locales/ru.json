@@ -26,6 +26,8 @@
     "deviceTitle": "Устройство",
     "moduleTitle": "Модули",
     "moduleActive": "Активные модули",
+    "mountSource": "Источник монтирования",
+
     "modelLabel": "Модель",
     "androidLabel": "Android",
     "kernelLabel": "Ядро",
@@ -60,6 +62,7 @@
     "reload": "Перезагрузить",
     "save": "Сохранить",
     "reset": "Сброс",
+    "apply": "Применить",
     "loadSuccess": "Настройки успешно загружены",
     "loadError": "Не удалось загрузить настройки",
     "loadDefault": "Загружены настройки по умолчанию",

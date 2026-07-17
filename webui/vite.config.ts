@@ -4,12 +4,14 @@
  */
 
 import { defineConfig } from "vite";
-import solid from "vite-plugin-solid";
+import vue from "@vitejs/plugin-vue";
 
 export default defineConfig({
   base: "./",
   build: {
     outDir: "../module/webroot",
+    target: "esnext",
+    chunkSizeWarningLimit: 1000,
   },
-  plugins: [solid()],
+  plugins: [vue()],
 });

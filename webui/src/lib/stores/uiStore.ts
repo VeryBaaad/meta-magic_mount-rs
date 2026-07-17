@@ -3,70 +3,73 @@
  * SPDX-License-Identifier: GPL-v3
  */
 
-import { createMemo, createRoot, createSignal } from "solid-js";
+import { ref } from "vue";
+import { toast } from "kernelsu";
+import { showSnackbar } from "miuix-vue";
+import { getSupportedLocales, loadLocale, switchLocale } from "../../locales";
 
-import type { LanguageOption, ToastMessage } from "../../types";
-import { availableLanguages, locales } from "../i18n";
+const lang = ref("en");
+const isReady = ref(false);
+const uiStyle = ref<"miuix" | "md3">("miuix");
 
-function createUiStore() {
-  const [lang, setLangSignal] = createSignal("en");
-  const [toast, setToast] = createSignal<ToastMessage>({
-    id: "init",
-    text: "",
-    type: "info",
-    visible: false,
-  });
-  const [isReady, setIsReady] = createSignal(false);
+const availableLanguages = ref<{ code: string; display: string }[]>([]);
 
-  const L = createMemo(() => locales[lang()] ?? locales.en);
-  const toasts = createMemo(() => {
-    const t = toast();
-
-    return t.visible ? [t] : [];
-  });
-
-  function showToast(text: string, type: ToastMessage["type"] = "info"): void {
-    const id = Date.now().toString();
-    setToast({ id, text, type, visible: true });
-    setTimeout(() => {
-      if (toast().id === id) {
-        setToast((prev) => ({ ...prev, visible: false }));
-      }
-    }, 3000);
-  }
-
-  function setLang(code: string) {
-    setLangSignal(code);
-    localStorage.setItem("mm-lang", code);
-  }
-
-  async function init() {
-    const savedLang = localStorage.getItem("mm-lang") ?? "en";
-    setLangSignal(savedLang);
-    localStorage.removeItem("mm-fix-nav");
-    setIsReady(true);
-  }
-
-  return {
-    get lang() {
-      return lang();
-    },
-    get availableLanguages(): LanguageOption[] {
-      return availableLanguages;
-    },
-    get L() {
-      return L();
-    },
-    get toasts() {
-      return toasts();
-    },
-    get isReady() {
-      return isReady();
-    },
-    showToast,
-    setLang,
-    init,
-  };
+async function fetchAvailableLanguages() {
+  availableLanguages.value = await getSupportedLocales();
 }
 
-export const uiStore = createRoot(createUiStore);
+function showToast(text: string): void {
+  if (uiStyle.value === "miuix") {
+    showSnackbar({ message: text });
+  } else {
+    toast(text);
+  }
+}
+
+async function setLang(code: string) {
+  lang.value = code;
+  await switchLocale(code);
+}
+
+function setUiStyle(style: "miuix" | "md3") {
+  uiStyle.value = style;
+  localStorage.setItem("uiStyle", style);
+}
+
+async function init() {
+  const savedLang = localStorage.getItem("locale") ?? "en";
+  await loadLocale(savedLang);
+  lang.value = savedLang;
+  localStorage.removeItem("mm-fix-nav");
+  await fetchAvailableLanguages();
+  const savedStyle = localStorage.getItem("uiStyle") as
+    "miuix" | "md3" | "custom" | null;
+  if (savedStyle === "miuix" || savedStyle === "md3") {
+    uiStyle.value = savedStyle;
+  } else if (savedStyle === "custom") {
+    uiStyle.value = "md3";
+    localStorage.setItem("uiStyle", "md3");
+  }
+  console.log(uiStyle.value);
+  isReady.value = true;
+}
+
+export const uiStore = {
+  get lang() {
+    return lang.value;
+  },
+  get availableLanguages() {
+    return availableLanguages.value;
+  },
+  get isReady() {
+    return isReady.value;
+  },
+  get uiStyle() {
+    return uiStyle.value;
+  },
+  showToast,
+  setLang,
+  setUiStyle,
+  init,
+  fetchAvailableLanguages,
+};

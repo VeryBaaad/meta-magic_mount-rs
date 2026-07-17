@@ -1,0 +1,27 @@
+/*
+ * Copyright (C) 2026 meta-magic_mount-rs developers
+ * SPDX-License-Identifier: GPL-v3
+ */
+
+@import url("https://mui.kernelsu.org/internal/insets.css");
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-on-background);
+}
+
+#app {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
