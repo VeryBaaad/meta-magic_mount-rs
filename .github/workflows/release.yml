@@ -26,8 +26,6 @@ jobs:
             rust-target: armv7-linux-androideabi
           - target: x86-64
             rust-target: x86_64-linux-android
-          - target: universal
-            rust-target: x86_64-linux-android, aarch64-linux-android, armv7-linux-androideabi
     steps:
       - uses: actions/checkout@v7
         with:
