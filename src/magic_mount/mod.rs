@@ -247,7 +247,10 @@ impl MagicMount {
                 )
             })?;
             // make private to reduce peer group count
-            if let Err(e) = mount_change(&self.path, MountPropagationFlags::PRIVATE) {
+            if let Err(e) = mount_change(
+                &self.path,
+                MountPropagationFlags::PRIVATE | MountPropagationFlags::REC,
+            ) {
                 log::warn!("make dir {} private: {e:#?}", self.path.display());
             }
 
@@ -316,7 +319,11 @@ where
         ensure_dir_exists(&tmp_dir)?;
 
         mount(mount_source, &tmp_dir, "tmpfs", MountFlags::empty(), None).context("mount tmp")?;
-        mount_change(&tmp_dir, MountPropagationFlags::PRIVATE).context("make tmp private")?;
+        mount_change(
+            &tmp_dir,
+            MountPropagationFlags::PRIVATE | MountPropagationFlags::REC,
+        )
+        .context("make tmp recursively private")?;
 
         MagicMount::new(&root, Path::new("/"), tmp_dir.as_path(), false, umount).do_mount()?;
     } else {
