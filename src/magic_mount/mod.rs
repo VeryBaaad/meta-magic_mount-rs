@@ -110,17 +110,20 @@ impl MagicMount {
             self.work_dir_path.display()
         );
 
-        mount_bind(module_path, target).with_context(|| {
-            if self.umount {
-                // tell ksu about this mount
-                send_unmountable(target);
-            }
-            format!(
-                "mount module file {} -> {}",
-                module_path.display(),
-                self.work_dir_path.display(),
-            )
-        })?;
+        if mount_bind(module_path, target)
+            .with_context(|| {
+                format!(
+                    "mount module file {} -> {}",
+                    module_path.display(),
+                    self.work_dir_path.display(),
+                )
+            })
+            .is_ok()
+            && self.umount
+            && !self.work_dir_path.starts_with("/mnt")
+        {
+            send_unmountable(target);
+        }
 
         // we should use MS_REMOUNT | MS_BIND | MS_xxx to change mount flags
         if let Err(e) = mount_remount(target, MountFlags::RDONLY | MountFlags::BIND, "") {
