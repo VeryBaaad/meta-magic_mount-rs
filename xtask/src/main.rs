@@ -95,7 +95,7 @@ enum Commands {
 }
 
 impl Targets {
-    fn to_str(&self) -> &'static str {
+    fn to_str(self) -> &'static str {
         match self {
             Self::Arm64 => "arm64",
             Self::Armv7 => "armv7",
@@ -176,8 +176,8 @@ fn update() -> Result<()> {
         zipurl: format!(
             "https://github.com/VeryBaaad/meta-magic_mount-rs/releases/download/v{}/magic_mount_rs-{}-{}.zip",
             data.package.version.clone(),
-            &data.package.version,
-            &cal_git_code()?
+            data.package.version,
+            cal_git_code()?
         ),
         changelog: String::from(
             "https://github.com/VeryBaaad/meta-magic_mount-rs/raw/master/update/changelog.md",
@@ -318,8 +318,8 @@ fn match_build(verbose: bool, target: Targets) -> Result<()> {
     zip_create_from_directory_with_options(
         &Path::new("output").join(format!(
             "magic_mount_rs-{}-{}-{}.zip",
-            &data.package.version,
-            &cal_git_code()?,
+            data.package.version,
+            cal_git_code()?,
             target.to_str()
         )),
         &temp_dir,
