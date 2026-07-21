@@ -19,3 +19,6 @@ toml.workspace = true
 zip = "8.6.0"
 machikado-rs = { git = "https://github.com/VeryBaaad/machikado-rs.git", version = "2.0.0" }
 sha2 = "0.11.0"
+
+[lints]
+workspace = true
