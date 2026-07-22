@@ -2,58 +2,68 @@
 // SPDX-License-Identifier: GPL-v3
 
 use std::{
-    fs,
+    fs::{self, DirEntry},
     io::{Error, ErrorKind},
-    path::{Path, PathBuf},
+    path::{Component, Path, PathBuf},
 };
 
 use rustix::mount::{MountFlags, UnmountFlags, mount_bind, mount_move, mount_remount, unmount};
 
 use crate::{
-    errors::Result, magic_mount::utils::mount_mirror, parser::COMMAND_LIST,
+    errors::Result,
+    magic_mount::utils::mount_mirror,
+    parser::{COMMAND_LIST, MountType},
     utils::ksucalls::send_unmountable,
 };
 
 fn mirror_paths(target: &Path) -> Result<(PathBuf, PathBuf)> {
+    if !target.is_absolute()
+        || target
+            .components()
+            .any(|component| component == Component::ParentDir)
+    {
+        return Err(Error::new(
+            ErrorKind::InvalidInput,
+            format!("invalid mirror target: {}", target.display()),
+        )
+        .into());
+    }
+
     let mut ancestor = target.parent().ok_or_else(|| {
         Error::new(
             ErrorKind::InvalidInput,
             format!("target has no parent: {}", target.display()),
         )
     })?;
-
-    while !ancestor.exists() {
-        ancestor = ancestor.parent().ok_or_else(|| {
-            Error::new(
-                ErrorKind::NotFound,
-                format!("target has no existing ancestor: {}", target.display()),
-            )
-        })?;
+    loop {
+        match fs::symlink_metadata(ancestor) {
+            Ok(_) => break,
+            Err(error) if error.kind() == ErrorKind::NotFound => {
+                ancestor = ancestor.parent().ok_or_else(|| {
+                    Error::new(
+                        ErrorKind::NotFound,
+                        format!("target has no existing ancestor: {}", target.display()),
+                    )
+                })?;
+            }
+            Err(error) => return Err(error.into()),
+        }
     }
 
+    let relative_target = target
+        .strip_prefix(ancestor)
+        .map_err(|error| Error::new(ErrorKind::InvalidInput, error))?
+        .to_path_buf();
+    let ancestor = fs::canonicalize(ancestor)?;
     if ancestor.parent().is_none() {
         return Err(Error::new(
             ErrorKind::InvalidInput,
-            format!(
-                "refusing to mirror the root directory for {}",
-                target.display()
-            ),
+            format!("refusing to mirror root for {}", target.display()),
         )
         .into());
     }
 
-    let relative_target = target.strip_prefix(ancestor).map_err(|error| {
-        Error::new(
-            ErrorKind::InvalidInput,
-            format!(
-                "cannot resolve {} relative to {}: {error}",
-                target.display(),
-                ancestor.display()
-            ),
-        )
-    })?;
-
-    Ok((ancestor.to_path_buf(), relative_target.to_path_buf()))
+    Ok((ancestor, relative_target))
 }
 
 fn create_mirror_target(source: &Path, target: &Path) -> Result<()> {
@@ -63,9 +73,30 @@ fn create_mirror_target(source: &Path, target: &Path) -> Result<()> {
         if let Some(parent) = target.parent() {
             fs::create_dir_all(parent)?;
         }
-        fs::File::create(target)?;
+        fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(target)?;
     }
+    Ok(())
+}
 
+fn validate_mirror_entry(entry: &DirEntry) -> Result<()> {
+    let file_type = entry.file_type()?;
+    if file_type.is_dir() {
+        for entry in entry.path().read_dir()? {
+            validate_mirror_entry(&entry?)?;
+        }
+    } else if !file_type.is_file() && !file_type.is_symlink() {
+        return Err(Error::new(
+            ErrorKind::Unsupported,
+            format!(
+                "cannot mirror unsupported file type: {}",
+                entry.path().display()
+            ),
+        )
+        .into());
+    }
     Ok(())
 }
 
@@ -80,18 +111,38 @@ fn mount_readonly(source: &Path, target: &Path) -> Result<()> {
         }
         return Err(error.into());
     }
-
     Ok(())
 }
 
 fn mount_missing_target(source: &Path, target: &Path) -> Result<PathBuf> {
     let (ancestor, relative_target) = mirror_paths(target)?;
+    let first_missing_component = relative_target
+        .components()
+        .next()
+        .ok_or_else(|| Error::new(ErrorKind::InvalidInput, "target already exists"))?
+        .as_os_str();
+    let entries = ancestor.read_dir()?.collect::<std::io::Result<Vec<_>>>()?;
+
+    for entry in &entries {
+        if entry.file_name() == first_missing_component {
+            return Err(Error::new(
+                ErrorKind::AlreadyExists,
+                format!(
+                    "target changed while preparing bind mount: {}",
+                    target.display()
+                ),
+            )
+            .into());
+        }
+        validate_mirror_entry(entry)?;
+    }
+
     let workdir = tempfile::Builder::new().tempdir()?;
     mount_bind(workdir.path(), workdir.path())?;
 
     let result = (|| -> Result<()> {
-        for entry in ancestor.read_dir()? {
-            mount_mirror(ancestor.as_path(), workdir.path(), &entry?)?;
+        for entry in &entries {
+            mount_mirror(ancestor.as_path(), workdir.path(), entry)?;
         }
 
         let mirror_target = workdir.path().join(relative_target);
@@ -115,41 +166,42 @@ fn mount_missing_target(source: &Path, target: &Path) -> Result<PathBuf> {
     Ok(ancestor)
 }
 
+fn mount_target(source: &Path, target: &Path) -> Result<PathBuf> {
+    match target.metadata() {
+        Ok(_) => {
+            let target = fs::canonicalize(target)?;
+            mount_readonly(source, &target)?;
+            Ok(target)
+        }
+        Err(error) if error.kind() == ErrorKind::NotFound => mount_missing_target(source, target),
+        Err(error) => Err(error.into()),
+    }
+}
+
 pub fn bind_mount(umount: bool) -> Result<()> {
-    let bind_mount_list: Vec<_> = COMMAND_LIST
+    let commands = COMMAND_LIST
         .get()
-        .unwrap()
-        .iter()
-        .filter_map(|s| {
-            if let crate::parser::MountType::Mount { source, target } = s {
-                Some((source.clone(), target.clone()))
-            } else {
-                None
-            }
-        })
-        .collect();
+        .ok_or_else(|| Error::new(ErrorKind::NotFound, "mount command list is not initialized"))?;
 
-    for (s, t) in bind_mount_list {
-        log::debug!("bind mount: {s} -> {t}");
+    for command in commands {
+        let MountType::Mount { source, target } = command else {
+            continue;
+        };
 
-        let source = Path::new(&s);
-        let target = Path::new(&t);
+        log::debug!("bind mount: {source} -> {target}");
+
+        let source = Path::new(source);
         if !source.exists() {
             log::error!("source doesn't exist, skip: {}", source.display());
             continue;
         }
 
-        let unmount_target = if target.exists() {
-            mount_readonly(source, target)?;
-            target.to_path_buf()
-        } else {
-            mount_missing_target(source, target)?
-        };
-
+        let unmount_target = mount_target(source, Path::new(target))?;
         if umount {
             send_unmountable(unmount_target);
         }
     }
+
     Ok(())
 }
 
