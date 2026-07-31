@@ -495,7 +495,16 @@ fn x86_64_bin_path() -> PathBuf {
 fn cargo_ndk(target: Targets) -> Command {
     let mut command = Command::new("cargo");
     command
-        .args(["+nightly", "ndk", "--platform", "26"])
+        .args([
+            "+nightly",
+            "ndk",
+            "--platform",
+            if matches!(target, Targets::Arm64 | Targets::X86_64) {
+                "30"
+            } else {
+                "26"
+            },
+        ])
         .env("RUSTFLAGS", "-C default-linker-libraries");
     match target {
         Targets::Arm64 => {
