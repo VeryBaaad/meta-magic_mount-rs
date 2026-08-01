@@ -80,6 +80,7 @@ jobs:
         with:
           shared-key: android-${{ matrix.rust-target }}
           cache-workspace-crates: "true"
+          cache-all-crates: "true"
           save-if: ${{ github.event_name != 'pull_request' }}
       - name: Install cargo-ndk
         uses: taiki-e/install-action@v2
