@@ -13,6 +13,24 @@ if [ -n "$KSU_LATE_LOAD" ]; then
   abort "! unsupported late load mode"
 fi
 
+case "$ARCH" in
+arm64)
+  ui_print "- Selected architecture: arm64-v8a"
+  ARCH_BINARY="arm64-v8a"
+  ;;
+arm)
+  ui_print "- Selected architecture: armeabi-v7a"
+  ARCH_BINARY="armeabi-v7a"
+  ;;
+x64)
+  ui_print " - Selected architecture: x86_64"
+  ARCH_BINARY="x86_64"
+  ;;
+*)
+  abort "! Unsupported platform: $ABI"
+  ;;
+esac
+
 VERSION=$(grep_prop version "${TMPDIR}/module.prop")
 ui_print "- mmrs version ${VERSION}"
 
@@ -27,22 +45,23 @@ fi
 # shellcheck disable=SC1091
 . "$TMPDIR/verify.sh"
 
+extract "machikado.$ARCH" "" "machikado"
+
 extract 'module.prop'
 extract 'config.toml'
 extract 'config_apatch.toml'
 extract 'metainstall.sh'
 extract 'metamount.sh'
 extract 'metauninstall.sh'
+extract "mazoku"
 extract 'uninstall.sh'
 extract 'launcher.png'
-extract 'meta-mm'
-extract 'mazoku'
-extract 'machikado'
+extract "bin/$ARCH_BINARY/magic_mount_rs "" "mmrs"
+
+# Ensure the binary is executable
+chmod 755 "$MODPATH/bin/$ARCH_BINARY" -R || abort "! Failed to set permissions"
 
 unzip -o "$ZIPFILE" "webroot/*" -x "*.sha256" -d "$MODPATH"
-
-# Binary is named "meta-mm" in the zip — metamount.sh references it directly.
-chmod 755 "$MODPATH/meta-mm" || abort "! Failed to set permissions"
 
 ui_print "- mmrs binary installed"
 
@@ -59,8 +78,6 @@ if [ ! -f "/data/adb/magic_mount/config.toml" ]; then
   fi
 
 fi
-
-cp "$MODPATH/module.prop" "$MODPATH/module.prop.orig"
 
 ui_print "- Installation complete"
 ui_print "- Welcome to mmrs!"

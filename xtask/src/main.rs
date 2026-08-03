@@ -3,6 +3,7 @@
 
 mod zip_ext;
 
+use machikado_rs::FileMapping;
 use std::{
     fs,
     path::{Path, PathBuf},
@@ -48,11 +49,12 @@ struct Cli {
     command: Commands,
 }
 
-#[derive(Debug, ValueEnum, Clone)]
+#[derive(Debug, ValueEnum, Copy, Clone)]
 enum Targets {
     Arm64,
     Armv7,
     X86_64,
+    Universal,
 }
 
 #[derive(Subcommand)]
@@ -101,6 +103,7 @@ impl Targets {
             Self::Arm64 => "arm64",
             Self::Armv7 => "armv7",
             Self::X86_64 => "x86_64",
+            Self::Universal => "universal",
         }
     }
 }
@@ -175,13 +178,13 @@ fn update() -> Result<()> {
         // Fixed typo here as well
         version: data.package.version.clone(),
         zipurl: format!(
-            "https://github.com/VeryBaaad/meta-magic_mount-rs/releases/download/v{}/magic_mount_rs-{}-{}.zip",
+            "https://github.com/Tools-cx-app/meta-magic_mount-rs/releases/download/v{}/magic_mount_rs-{}-{}-universal.zip",
             data.package.version.clone(),
             data.package.version,
             cal_git_code()?
         ),
         changelog: String::from(
-            "https://github.com/VeryBaaad/meta-magic_mount-rs/raw/master/update/changelog.md",
+            "https://github.com/Tools-cx-app/meta-magic_mount-rs/raw/master/update/changelog.md",
         ),
     };
 
@@ -193,7 +196,7 @@ fn update() -> Result<()> {
 }
 
 fn check(verbose: bool) -> Result<()> {
-    let mut cargo = cargo_ndk();
+    let mut cargo = cargo_ndk(Targets::Universal);
     cargo.args(["check", "-Z", "build-std", "-Z", "trim-paths"]);
     cargo.env("RUSTFLAGS", "-C default-linker-libraries");
 
@@ -217,7 +220,7 @@ fn clean() -> Result<()> {
 
 fn lint(fix: bool) -> Result<()> {
     let command_builder = |fix: bool| {
-        let mut command = cargo_ndk();
+        let mut command = cargo_ndk(Targets::Universal);
         command.arg("clippy");
         if fix {
             command.args(["--fix", "--allow-dirty", "--allow-staged", "--all"]);
@@ -242,33 +245,86 @@ fn format(verbose: bool) -> Result<()> {
     Ok(())
 }
 
+fn generate_machikado(
+    dir: &Path,
+    priv_key: [u8; 64],
+    name: &str,
+    mapping: FileMapping,
+) -> Result<()> {
+    let entries =
+        machikado_rs::load_folder_files(dir, &[], &["customize.sh", "verify.sh"], Some(&mapping))?;
+    let machikado = machikado_rs::sign_file_entries(&entries, &priv_key)?;
+    fs::write(dir.join(name), machikado.as_bytes())?;
+
+    Ok(())
+}
+
 fn match_build(verbose: bool, target: Targets) -> Result<()> {
     let temp_dir = temp_dir();
+    let bin_path = temp_dir.join("bin");
     let toml = fs::read_to_string("Cargo.toml")?;
     let data: CargoConfig = toml::from_str(&toml)?;
 
     let _ = fs::remove_dir_all(&temp_dir);
     let _ = fs::create_dir_all(&temp_dir);
-    build(verbose, data.package.name)?;
+    let _ = fs::create_dir_all(&bin_path);
+    build(verbose, target, data.package.name)?;
     match target {
         Targets::Arm64 => {
+            let arm64_v8a = bin_path.join("arm64-v8a").join("magic_mount_rs");
+
+            let _ = fs::create_dir_all(arm64_v8a.parent().unwrap());
+
             file::copy(
                 aarch64_bin_path(),
-                temp_dir.join("meta-mm"),
+                &arm64_v8a,
                 &file::CopyOptions::new().overwrite(true),
             )?;
         }
         Targets::Armv7 => {
+            let armeabi_v7a = bin_path.join("armeabi-v7a").join("magic_mount_rs");
+
+            let _ = fs::create_dir_all(armeabi_v7a.parent().unwrap());
+
             file::copy(
                 armv7_bin_path(),
-                temp_dir.join("meta-mm"),
+                &armeabi_v7a,
                 &file::CopyOptions::new().overwrite(true),
             )?;
         }
         Targets::X86_64 => {
+            let x86_64 = bin_path.join("x86_64").join("magic_mount_rs");
+
+            let _ = fs::create_dir_all(x86_64.parent().unwrap());
+
             file::copy(
                 x86_64_bin_path(),
-                temp_dir.join("meta-mm"),
+                &x86_64,
+                &file::CopyOptions::new().overwrite(true),
+            )?;
+        }
+        Targets::Universal => {
+            let arm64_v8a = bin_path.join("arm64-v8a").join("magic_mount_rs");
+            let armeabi_v7a = bin_path.join("armeabi-v7a").join("magic_mount_rs");
+            let x86_64 = bin_path.join("x86_64").join("magic_mount_rs");
+
+            let _ = fs::create_dir_all(arm64_v8a.parent().unwrap());
+            let _ = fs::create_dir_all(armeabi_v7a.parent().unwrap());
+            let _ = fs::create_dir_all(x86_64.parent().unwrap());
+
+            file::copy(
+                armv7_bin_path(),
+                &armeabi_v7a,
+                &file::CopyOptions::new().overwrite(true),
+            )?;
+            file::copy(
+                aarch64_bin_path(),
+                &arm64_v8a,
+                &file::CopyOptions::new().overwrite(true),
+            )?;
+            file::copy(
+                x86_64_bin_path(),
+                &x86_64,
                 &file::CopyOptions::new().overwrite(true),
             )?;
         }
@@ -277,10 +333,40 @@ fn match_build(verbose: bool, target: Targets) -> Result<()> {
     let priv_key: [u8; 64] = fs::read("priv_key")?
         .try_into()
         .map_err(|_| anyhow::anyhow!("priv_key must be exactly 64 bytes"))?;
-    let entries =
-        machikado_rs::load_folder_files(&temp_dir, &[], &["customize.sh", "verify.sh"], None)?;
-    let machikado = machikado_rs::sign_file_entries(&entries, &priv_key)?;
-    fs::write(temp_dir.join("machikado"), machikado.as_bytes())?;
+    match target {
+        Targets::Arm64 => {
+            let mapping = FileMapping::from(("mmrs", "bin/arm64-v8a/magic_mount_rs"));
+            let _ = generate_machikado(&temp_dir, priv_key, "machikado.arm64", mapping);
+        }
+        Targets::Armv7 => {
+            let mapping = FileMapping::from(("mmrs", "bin/armeabi-v7a/magic_mount_rs"));
+            let _ = generate_machikado(&temp_dir, priv_key, "machikado.armv7", mapping);
+        }
+        Targets::X86_64 => {
+            let mapping = FileMapping::from(("mmrs", "bin/x86_64/magic_mount_rs"));
+            let _ = generate_machikado(&temp_dir, priv_key, "machikado.x64", mapping);
+        }
+        Targets::Universal => {
+            let _ = generate_machikado(
+                &temp_dir,
+                priv_key,
+                "machikado.arm64",
+                FileMapping::from(("mmrs", "bin/arm64-v8a/magic_mount_rs")),
+            );
+            let _ = generate_machikado(
+                &temp_dir,
+                priv_key,
+                "machikado.armv7",
+                FileMapping::from(("mmrs", "bin/armeabi-v7a/magic_mount_rs")),
+            );
+            let _ = generate_machikado(
+                &temp_dir,
+                priv_key,
+                "machikado.x64",
+                FileMapping::from(("mmrs", "bin/x86_64/magic_mount_rs")),
+            );
+        }
+    }
 
     let mut vec_temp_dir: Vec<PathBuf> = vec![temp_dir.clone()];
     while let Some(current) = vec_temp_dir.pop() {
@@ -325,12 +411,13 @@ fn match_build(verbose: bool, target: Targets) -> Result<()> {
         )),
         &temp_dir,
         |_| options,
-    )?;
+    )
+    .unwrap();
 
     Ok(())
 }
 
-fn build(verbose: bool, name: String) -> Result<()> {
+fn build(verbose: bool, target: Targets, name: String) -> Result<()> {
     let temp_dir = temp_dir();
 
     unsafe {
@@ -341,7 +428,7 @@ fn build(verbose: bool, name: String) -> Result<()> {
         std::env::remove_var("MODULE_ID");
     }
 
-    let mut cargo = cargo_ndk();
+    let mut cargo = cargo_ndk(target);
     let args = vec![
         "build",
         "-Z",
@@ -366,11 +453,13 @@ fn build(verbose: bool, name: String) -> Result<()> {
         &module_dir,
         &temp_dir,
         &dir::CopyOptions::new().overwrite(true).content_only(true),
-    )?;
+    )
+    .unwrap();
 
     if temp_dir.join(".gitignore").exists() {
-        fs::remove_file(temp_dir.join(".gitignore"))?;
+        fs::remove_file(temp_dir.join(".gitignore")).unwrap();
     }
+
     Ok(())
 }
 
@@ -403,22 +492,25 @@ fn x86_64_bin_path() -> PathBuf {
         .join("magic_mount_rs")
 }
 
-fn cargo_ndk() -> Command {
+fn cargo_ndk(target: Targets) -> Command {
     let mut command = Command::new("cargo");
     command
-        .args([
-            "+nightly",
-            "ndk",
-            "--platform",
-            "26",
-            "-t",
-            "arm64-v8a",
-            "-t",
-            "x86_64",
-            "-t",
-            "armeabi-v7a",
-        ])
+        .args(["+nightly", "ndk", "--platform", "26"])
         .env("RUSTFLAGS", "-C default-linker-libraries");
+    match target {
+        Targets::Arm64 => {
+            command.args(["-t", "arm64-v8a"]);
+        }
+        Targets::Armv7 => {
+            command.args(["-t", "armeabi-v7a"]);
+        }
+        Targets::X86_64 => {
+            command.args(["-t", "x86_64"]);
+        }
+        Targets::Universal => {
+            command.args(["-t", "arm64-v8a", "-t", "x86_64", "-t", "armeabi-v7a"]);
+        }
+    }
     command
 }
 
