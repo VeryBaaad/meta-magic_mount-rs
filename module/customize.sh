@@ -56,10 +56,10 @@ extract 'metauninstall.sh'
 extract "mazoku"
 extract 'uninstall.sh'
 extract 'launcher.png'
-extract "bin/$ARCH_BINARY/magic_mount_rs "" "mmrs"
+extract "bin/$ARCH_BINARY/magic_mount_rs" "" "mmrs"
 
 # Ensure the binary is executable
-chmod 755 "$MODPATH/bin/$ARCH_BINARY" -R || abort "! Failed to set permissions"
+chmod 755 "$MODPATH/mmrs" -R || abort "! Failed to set permissions"
 
 unzip -o "$ZIPFILE" "webroot/*" -x "*.sha256" -d "$MODPATH"
 
