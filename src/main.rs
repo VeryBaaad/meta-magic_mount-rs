@@ -47,9 +47,7 @@ fn main() -> Result<()> {
                 handle_gen_config()?;
             }
             "modules" => {
-                let config = Config::load_or_default(defs::CONFIG_FILE);
-                let modules = scanner::list_modules(MODULE_PATH, &config.partitions);
-                println!("{}", serde_json::to_string(&modules)?);
+                println!("{}", std::fs::read_to_string(defs::SCANNED_LIST)?);
             }
             "version" => {
                 println!("{{ \"version\": \"{}\" }}", env!("CARGO_PKG_VERSION"));
@@ -61,6 +59,8 @@ fn main() -> Result<()> {
     }
 
     let config = Config::load(defs::CONFIG_FILE)?;
+    let modules = scanner::list_modules(MODULE_PATH, &config.partitions);
+    let _ = std::fs::write(defs::SCANNED_LIST, &serde_json::to_string_pretty(&modules)?);
 
     log::info!("Magic Mount Starting");
     log::info!("config info:\n{config}");

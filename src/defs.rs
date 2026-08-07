@@ -20,3 +20,5 @@ pub const MAZOKU_FILE: &str = "/data/adb/modules/magic_mount_rs/mazoku";
 pub const MODULE_PROP: &str = concatcp!(MODULE_PATH, "/", env!("MODULE_ID"), "/module.prop");
 pub const MODULE_PROP_ORIG: &str =
     concatcp!(MODULE_PATH, "/", env!("MODULE_ID"), "/module.prop.orig");
+pub const SCANNED_LIST: &str = concatcp!(MAGIC_MOUNT, "/scan.ret");
+
