@@ -6,7 +6,7 @@
 -->
 <script setup lang="ts">
 import "miuix-vue/style.css";
-import "../miuix-monet-theme.css";
+import "./theme.css";
 import { ref, watch, onMounted, onBeforeUnmount, type Component } from "vue";
 import { useI18n } from "vue-i18n";
 import {
@@ -26,7 +26,7 @@ import {
   Folder,
   Close2,
 } from "miuix-vue/icons";
-import { sysStore } from "../lib/stores/sysStore";
+import { sysStore } from "../../lib/stores/sysStore";
 
 const { t } = useI18n();
 

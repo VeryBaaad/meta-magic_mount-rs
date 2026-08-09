@@ -6,7 +6,7 @@
 -->
 <script setup lang="ts">
 import { ref } from "vue";
-import { ICONS } from "../../lib/constants";
+import { ICONS } from "../icons";
 
 const props = defineProps<{
   values: string[];

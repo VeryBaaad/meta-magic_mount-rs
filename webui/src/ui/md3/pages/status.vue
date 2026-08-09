@@ -7,13 +7,13 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
 import { useI18n } from "vue-i18n";
-import Skeleton from "../components/md3/Skeleton.vue";
-import BottomActions from "../components/md3/BottomActions.vue";
-import { ICONS } from "../lib/constants";
-import { uiStore } from "../lib/stores/uiStore";
-import { sysStore } from "../lib/stores/sysStore";
-import { moduleStore } from "../lib/stores/moduleStore";
-import { configStore } from "../lib/stores/configStore";
+import Skeleton from "../components/Skeleton.vue";
+import BottomActions from "../components/BottomActions.vue";
+import { ICONS } from "../icons";
+import { uiStore } from "../../../lib/stores/uiStore";
+import { sysStore } from "../../../lib/stores/sysStore";
+import { moduleStore } from "../../../lib/stores/moduleStore";
+import { configStore } from "../../../lib/stores/configStore";
 
 const { t } = useI18n();
 

@@ -5,7 +5,7 @@
 
 -->
 <template>
-  <div class="logo-wrapper-md">
+  <div class="logo-wrapper">
     <svg
       viewBox="0 0 160 210"
       xmlns="http://www.w3.org/2000/svg"
@@ -55,11 +55,11 @@
   </div>
 </template>
 
-<style>
-.logo-wrapper-md {
-  --logo-accent: var(--md-sys-color-primary);
-  --logo-flow: var(--md-sys-color-tertiary-container);
-  --logo-satellite: var(--md-sys-color-error);
+<style scoped>
+.logo-wrapper {
+  --logo-accent: var(--m-color-primary) !important;
+  --logo-flow: var(--m-color-tertiary-container) !important;
+  --logo-satellite: var(--m-color-error) !important;
   width: 100%;
   height: 100%;
   display: flex;

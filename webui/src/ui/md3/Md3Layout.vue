@@ -7,9 +7,9 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, onBeforeUnmount, type Component } from "vue";
 import { useI18n } from "vue-i18n";
-import { API } from "../lib/api";
-import { ICONS } from "../lib/constants";
-import "../md3-theme.css";
+import { API } from "../../lib/api";
+import { ICONS } from "./icons";
+import "./theme.css";
 
 const { t } = useI18n();
 
@@ -34,6 +34,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   document.documentElement.classList.remove("md3-active");
+  document.documentElement.classList.remove("dark");
   mediaQuery?.removeEventListener("change", handleThemeChange);
 });
 

@@ -7,12 +7,12 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
-import Skeleton from "../components/md3/Skeleton.vue";
-import MagicLogo from "../components/md3/logo.vue";
-import { ICONS } from "../lib/constants";
-import { sysStore } from "../lib/stores/sysStore";
+import Skeleton from "../components/Skeleton.vue";
+import MagicLogo from "../components/logo.vue";
+import { ICONS } from "../icons";
+import { sysStore } from "../../../lib/stores/sysStore";
 import axios from "axios";
-import { API } from "../lib/api";
+import { API } from "../../../lib/api";
 
 const REPO_OWNER = "VeryBaaad";
 const REPO_NAME = "meta-magic_mount-rs";

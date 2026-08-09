@@ -7,11 +7,11 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
 import { useI18n } from "vue-i18n";
-import BottomActions from "../components/md3/BottomActions.vue";
-import Skeleton from "../components/md3/Skeleton.vue";
-import Searchbar from "../components/md3/searchbar.vue";
-import { ICONS } from "../lib/constants";
-import { moduleStore } from "../lib/stores/moduleStore";
+import BottomActions from "../components/BottomActions.vue";
+import Skeleton from "../components/Skeleton.vue";
+import Searchbar from "../components/searchbar.vue";
+import { ICONS } from "../icons";
+import { moduleStore } from "../../../lib/stores/moduleStore";
 
 const { t } = useI18n();
 

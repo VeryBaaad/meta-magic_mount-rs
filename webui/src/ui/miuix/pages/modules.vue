@@ -13,8 +13,8 @@ import {
   MiuixText,
   MiuixBasicComponent,
 } from "miuix-vue";
-import Label from "../components/miuix/Label.vue";
-import { moduleStore } from "../lib/stores/moduleStore";
+import Label from "../components/Label.vue";
+import { moduleStore } from "../../../lib/stores/moduleStore";
 
 const { t } = useI18n();
 

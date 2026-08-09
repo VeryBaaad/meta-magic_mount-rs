@@ -8,12 +8,12 @@
 import { ref, computed, watch, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { toast } from "kernelsu";
-import BottomActions from "../components/md3/BottomActions.vue";
-import ChipInput from "../components/md3/ChipInput.vue";
-import { ICONS } from "../lib/constants";
-import { configStore } from "../lib/stores/configStore";
-import type { CustomMount } from "../lib/types";
-import { uiStore } from "../lib/stores/uiStore";
+import BottomActions from "../components/BottomActions.vue";
+import ChipInput from "../components/ChipInput.vue";
+import { ICONS } from "../icons";
+import { configStore } from "../../../lib/stores/configStore";
+import type { CustomMount } from "../../../lib/types";
+import { uiStore } from "../../../lib/stores/uiStore";
 
 const { t } = useI18n();
 

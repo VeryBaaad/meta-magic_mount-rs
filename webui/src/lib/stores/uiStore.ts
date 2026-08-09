@@ -5,7 +5,6 @@
 
 import { ref } from "vue";
 import { toast } from "kernelsu";
-import { showSnackbar } from "miuix-vue";
 import { getSupportedLocales, loadLocale, switchLocale } from "../../locales";
 
 const lang = ref("en");
@@ -14,17 +13,18 @@ const uiStyle = ref<"miuix" | "md3">("miuix");
 const monetEnabled = ref(false);
 
 const availableLanguages = ref<{ code: string; display: string }[]>([]);
+let toastHandler: (text: string) => void = toast;
 
 async function fetchAvailableLanguages() {
   availableLanguages.value = await getSupportedLocales();
 }
 
 function showToast(text: string): void {
-  if (uiStyle.value === "miuix") {
-    showSnackbar({ message: text });
-  } else {
-    toast(text);
-  }
+  toastHandler(text);
+}
+
+function setToastHandler(handler?: (text: string) => void): void {
+  toastHandler = handler ?? toast;
 }
 
 async function setLang(code: string) {
@@ -35,6 +35,10 @@ async function setLang(code: string) {
 function setUiStyle(style: "miuix" | "md3") {
   uiStyle.value = style;
   localStorage.setItem("uiStyle", style);
+  document.documentElement.classList.toggle(
+    "miuix-monet",
+    style === "miuix" && monetEnabled.value,
+  );
 }
 
 function setMonetEnabled(enabled: boolean) {
@@ -62,11 +66,10 @@ async function init() {
     localStorage.setItem("uiStyle", "md3");
   }
   const savedMonet = localStorage.getItem("monetEnabled");
-  if (savedMonet === "1") {
-    monetEnabled.value = true;
+  monetEnabled.value = savedMonet === "1";
+  if (monetEnabled.value && uiStyle.value === "miuix") {
     document.documentElement.classList.add("miuix-monet");
   }
-  console.log(uiStyle.value);
   isReady.value = true;
 }
 
@@ -87,6 +90,7 @@ export const uiStore = {
     return monetEnabled.value;
   },
   showToast,
+  setToastHandler,
   setLang,
   setUiStyle,
   setMonetEnabled,
