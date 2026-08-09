@@ -252,7 +252,7 @@ fn generate_machikado(
     mapping: FileMapping,
 ) -> Result<()> {
     let entries =
-        machikado_rs::load_folder_files(dir, &["bin"], &["customize.sh", "verify.sh"], Some(&mapping))?;
+        machikado_rs::load_folder_files(dir, &["bin"], &["customize.sh", "verify.sh", "machikado.arm64", "machikado.armv7", "machikado.x64"], Some(&mapping))?;
     let machikado = machikado_rs::sign_file_entries(&entries, &priv_key)?;
     fs::write(dir.join(name), machikado.as_bytes())?;
 
@@ -335,15 +335,15 @@ fn match_build(verbose: bool, target: Targets) -> Result<()> {
         .map_err(|_| anyhow::anyhow!("priv_key must be exactly 64 bytes"))?;
     match target {
         Targets::Arm64 => {
-            let mapping = FileMapping::from(("mmrs", "bin/arm64-v8a/magic_mount_rs"));
+            let mapping = FileMapping::from(("bin/arm64-v8a/magic_mount_rs", "mmrs"));
             let _ = generate_machikado(&temp_dir, priv_key, "machikado.arm64", mapping);
         }
         Targets::Armv7 => {
-            let mapping = FileMapping::from(("mmrs", "bin/armeabi-v7a/magic_mount_rs"));
+            let mapping = FileMapping::from(("bin/armeabi-v7a/magic_mount_rs", "mmrs"));
             let _ = generate_machikado(&temp_dir, priv_key, "machikado.armv7", mapping);
         }
         Targets::X86_64 => {
-            let mapping = FileMapping::from(("mmrs", "bin/x86_64/magic_mount_rs"));
+            let mapping = FileMapping::from(("bin/x86_64/magic_mount_rs", "mmrs"));
             let _ = generate_machikado(&temp_dir, priv_key, "machikado.x64", mapping);
         }
         Targets::Universal => {
@@ -351,19 +351,19 @@ fn match_build(verbose: bool, target: Targets) -> Result<()> {
                 &temp_dir,
                 priv_key,
                 "machikado.arm64",
-                FileMapping::from(("mmrs", "bin/arm64-v8a/magic_mount_rs")),
+                FileMapping::from(("bin/arm64-v8a/magic_mount_rs", "mmrs")),
             );
             let _ = generate_machikado(
                 &temp_dir,
                 priv_key,
                 "machikado.armv7",
-                FileMapping::from(("mmrs", "bin/armeabi-v7a/magic_mount_rs")),
+                FileMapping::from(("bin/armeabi-v7a/magic_mount_rs", "mmrs")),
             );
             let _ = generate_machikado(
                 &temp_dir,
                 priv_key,
                 "machikado.x64",
-                FileMapping::from(("mmrs", "bin/x86_64/magic_mount_rs")),
+                FileMapping::from(("bin/x86_64/magic_mount_rs", "mmrs")),
             );
         }
     }
