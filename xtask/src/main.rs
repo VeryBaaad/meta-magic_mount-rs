@@ -252,7 +252,7 @@ fn generate_machikado(
     mapping: FileMapping,
 ) -> Result<()> {
     let entries =
-        machikado_rs::load_folder_files(dir, &[], &["customize.sh", "verify.sh"], Some(&mapping))?;
+        machikado_rs::load_folder_files(dir, &["bin"], &["customize.sh", "verify.sh"], Some(&mapping))?;
     let machikado = machikado_rs::sign_file_entries(&entries, &priv_key)?;
     fs::write(dir.join(name), machikado.as_bytes())?;
 
