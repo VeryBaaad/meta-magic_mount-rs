@@ -51,6 +51,7 @@ machikado-rs = { git = "https://github.com/VeryBaaad/machikado-rs.git", version 
 const_format = "0.2.36"
 hex = "0.4.3"
 parking_lot = "0.12.5"
+procfs = "0.18.0"
 
 [build-dependencies]
 anyhow.workspace = true

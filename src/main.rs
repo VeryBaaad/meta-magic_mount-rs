@@ -23,7 +23,7 @@ use crate::{
     config::{Config, handle_gen_config, handle_save_config, handle_show_config},
     defs::MODULE_PATH,
     errors::Result,
-    misc::cleanup,
+    misc::{cleanup, emulated_soft_reboot},
     utils::ksucalls::unmount,
 };
 
@@ -34,11 +34,15 @@ fn main() -> Result<()> {
     misc::pre_init();
 
     let args: Vec<_> = std::env::args().collect();
+    let config = Config::load(defs::CONFIG_FILE)?;
 
     if let Some(arg) = args.get(1) {
         match arg.as_str() {
             "show-config" => {
                 handle_show_config()?;
+            }
+            "emulated-soft-reboot" => {
+                emulated_soft_reboot(&config.mountsource)?;
             }
             "save-config" => {
                 handle_save_config(&args[2..])?;
@@ -58,7 +62,6 @@ fn main() -> Result<()> {
         return Ok(());
     }
 
-    let config = Config::load(defs::CONFIG_FILE)?;
     let modules = scanner::list_modules(MODULE_PATH, &config.partitions);
     let _ = std::fs::write(defs::SCANNED_LIST, &serde_json::to_string_pretty(&modules)?);
 

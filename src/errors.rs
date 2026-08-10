@@ -35,4 +35,6 @@ pub enum Error {
     Regex(#[from] regex_lite::Error),
     #[error(transparent)]
     Hex(#[from] hex::FromHexError),
+    #[error(transparent)]
+    Procfs(#[from] procfs::ProcError),
 }
