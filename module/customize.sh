@@ -49,11 +49,8 @@ extract 'config_apatch.toml'
 extract 'metainstall.sh'
 extract 'metamount.sh'
 extract 'metauninstall.sh'
-<<<<<<< HEAD
 extract "mazoku"
-=======
 extract 'emulated-soft-reboot.sh'
->>>>>>> 00f525c (mount: support late-load mode)
 extract 'uninstall.sh'
 extract 'launcher.png'
 do_extract true "$ZIPFILE" "bin/$ARCH_BINARY/magic_mount_rs" "$MODPATH" "mmrs"
